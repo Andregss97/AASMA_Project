@@ -15,6 +15,8 @@ NMBR_START_STRAWBERRIES = 5
 apple = p.image.load('snake_imgs/apple.svg')
 banana = p.image.load('snake_imgs/banana.svg')
 strawberry = p.image.load('snake_imgs/strawberry.svg')
+mushroom = p.image.load('snake_imgs/mushroom.svg')
+ice = p.image.load('snake_imgs/ice.svg')
 
 # Dispenser States : 1 - ACTIVE , 0 - ON COOLDOWN
 TL_DISPENSER_STATE = 0  # top-left dispenser state
@@ -34,6 +36,8 @@ def main():
     screen.fill(p.Color("white"))
     running = True
     food_spawned = False
+    
+    drawBoard(screen)   # draw squares of the board
 
     while running:
         for e in p.event.get():
@@ -44,20 +48,18 @@ def main():
             if event.key == p.K_s:
                 food_spawned = False
         if not food_spawned:
-            drawGameSate(screen)
+            drawGame(screen)
             food_spawned = True
         clock.tick(MAX_FPS)
         p.display.flip()
-
+        updateDispenserState(screen)    # verifies if the the dispenser is ACTIVE or ON COOLDOWN
 
 '''
-Responsible for drawing the board and pieces (to implement)
+Responsible for initializing the board
 '''
-def drawGameSate(screen):
-
+def drawGame(screen):
     drawBoard(screen)   # draw squares of the board
-    loadFood(screen)    # spawn food on the board
-    updateDispenserState(screen)    # verifies if the the dispenser is ACTIVE or ON COOLDOWN
+    spawnFood(screen)    # spawn food on the board
 
 
 '''
@@ -82,7 +84,7 @@ def drawBoard(screen):
 '''
 Spawns N amount of food randomly on the board
 '''
-def loadFood(screen):
+def spawnFood(screen):
     occupied = []
     count_apples = 0
     count_bananas = 0
@@ -111,6 +113,9 @@ def loadFood(screen):
                 screen.blit(strawberry, (rand_X*SQUARE_SIZE, rand_Y*SQUARE_SIZE))
                 occupied.append((rand_X, rand_Y))
                 count_strawberries += 1
+
+# def spawnTraps(screen):
+    
 
 def updateDispenserState (screen):
     for index in range(len(dispensers)):
