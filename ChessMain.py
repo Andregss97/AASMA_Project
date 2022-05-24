@@ -1,7 +1,7 @@
 import pygame as p
 
-WIDTH = HEIGHT = 512
-DIMENSION = 8
+WIDTH = HEIGHT = 600
+DIMENSION = 20
 MAX_FPS = 20
 SQUARE_SIZE = HEIGHT // DIMENSION
 
@@ -40,11 +40,15 @@ Draw de squares on the board (top left is always white)
 '''
 def drawBoard(screen):
 
-    colors = [p.Color("white"), p.Color("black")]
+    square_color = p.Color("white")
+    lines_color = p.Color("black")
     for c in range(DIMENSION):
         for r in range(DIMENSION):
-            color = colors[((r + c) % 2)]
-            p.draw.rect(screen, color, p.Rect(c * SQUARE_SIZE, r * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+            p.draw.rect(screen, square_color, p.Rect(c * SQUARE_SIZE, r * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE), border_radius=1)
+
+    for l in range(DIMENSION):
+        p.draw.lines(screen, lines_color, True, [(0, l*SQUARE_SIZE), (DIMENSION*SQUARE_SIZE, l*SQUARE_SIZE)])
+        p.draw.lines(screen, lines_color, True, [(l*SQUARE_SIZE, 0), (l*SQUARE_SIZE, DIMENSION*SQUARE_SIZE)])
 
 
 '''
