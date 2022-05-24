@@ -7,7 +7,7 @@
 | -------|-------------------|---------------------------------------|--------------------------------------------------|
 | 84699  | André Santos      | <https://github.com/Andregss97>       | <mailto:andre.s.dos.santos@tecnico.ulisboa.pt>   |
 | 84721  | Gonçalo Cruz      | <https://github.com/Cruziper>         | <mailto:goncalo.garcia.cruz@tecnico.ulisboa.pt>  |
-| 79730  | João Silva        | ?                                     | <mailto:jonasprs@hotmail.com>                    |
+| 79730  | João Silva        | <https://github.com/Vadstena>         | <mailto:jonasprs@hotmail.com>                    |
 
 - 4 cobras em busca de fruta, que procuram crescer à medida que se alimentam (1 px por fruta), com o objetivo de não chocarem umas com as outras;
 
