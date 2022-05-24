@@ -10,6 +10,9 @@ NMBR_START_APPLES = 15
 NMBR_START_BANANAS = 10
 NMBR_START_STRAWBERRIES = 5
 
+NMBR_START_MUSHROOMS = 3
+NMBR_START_ICE = 2
+
 apple = p.image.load('snake_imgs/apple.svg')
 banana = p.image.load('snake_imgs/banana.svg')
 strawberry = p.image.load('snake_imgs/strawberry.svg')
@@ -36,17 +39,18 @@ class Board:
     Draw de squares on the board
     '''
     def drawBoard(self, screen):
-        square_color = p.Color("white")
-        lines_color = p.Color("black")
+        square_color = p.Color("lemonchiffon1")
         dispenser_color = p.Color("hotpink1")
 
         for c in range(self.boardSize):
             for r in range(self.boardSize):
-                if (c,r) in self.busy_cells:
+                if (c,r) in self.dispensers:
                     p.draw.rect(screen, dispenser_color, p.Rect(c * SQUARE_SIZE, r * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE), border_radius=1)
                 else:
                     p.draw.rect(screen, square_color, p.Rect(c * SQUARE_SIZE, r * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE), border_radius=1)
 
+    def drawLines (self, screen):
+        lines_color = p.Color("black")
         for l in range(self.boardSize):
             p.draw.lines(screen, lines_color, True, [(0, l * SQUARE_SIZE), (self.tileSize, l * SQUARE_SIZE)])
             p.draw.lines(screen, lines_color, True, [(l * SQUARE_SIZE, 0), (l * SQUARE_SIZE, self.tileSize)])
@@ -70,33 +74,52 @@ class Board:
     Spawns N amount of food randomly on the board
     '''
     def spawnFood(self, screen):
-        occupied = []
         count_apples = 0
         count_bananas = 0
         count_strawberries = 0
         while count_apples < NMBR_START_APPLES:
             rand_X = randrange(self.boardSize)
             rand_Y = randrange(self.boardSize)
-            if (rand_X, rand_Y) not in occupied:
+            if (rand_X, rand_Y) not in self.busy_cells:
                 if (rand_X, rand_Y) not in self.dispensers:
                     screen.blit(apple, (rand_X * SQUARE_SIZE, rand_Y * SQUARE_SIZE))
-                    occupied.append((rand_X, rand_Y))
+                    self.busy_cells.append((rand_X, rand_Y))
                     count_apples += 1
         while count_bananas < NMBR_START_BANANAS:
             rand_X = randrange(self.boardSize)
             rand_Y = randrange(self.boardSize)
-            if (rand_X, rand_Y) not in occupied:
+            if (rand_X, rand_Y) not in self.busy_cells:
                 if (rand_X, rand_Y) not in self.dispensers:
                     screen.blit(banana, (rand_X * SQUARE_SIZE, rand_Y * SQUARE_SIZE))
-                    occupied.append((rand_X, rand_Y))
+                    self.busy_cells.append((rand_X, rand_Y))
                     count_bananas += 1
         while count_strawberries < NMBR_START_STRAWBERRIES:
             rand_X = randrange(self.boardSize)
             rand_Y = randrange(self.boardSize)
-            if (rand_X, rand_Y) not in occupied:
+            if (rand_X, rand_Y) not in self.busy_cells:
                 if (rand_X, rand_Y) not in self.dispensers:
                     screen.blit(strawberry, (rand_X * SQUARE_SIZE, rand_Y * SQUARE_SIZE))
-                    occupied.append((rand_X, rand_Y))
+                    self.busy_cells.append((rand_X, rand_Y))
                     count_strawberries += 1
+
+    def spawnTraps(self, screen):
+        count_mushrooms = 0
+        count_ice = 0
+        while count_mushrooms < NMBR_START_MUSHROOMS:
+            rand_X = randrange(self.boardSize)
+            rand_Y = randrange(self.boardSize)
+            if (rand_X, rand_Y) not in self.busy_cells:
+                if (rand_X, rand_Y) not in self.dispensers:
+                    screen.blit(mushroom, (rand_X * SQUARE_SIZE, rand_Y * SQUARE_SIZE))
+                    self.busy_cells.append((rand_X, rand_Y))
+                    count_mushrooms += 1
+        while count_ice < NMBR_START_ICE:
+            rand_X = randrange(self.boardSize)
+            rand_Y = randrange(self.boardSize)
+            if (rand_X, rand_Y) not in self.busy_cells:
+                if (rand_X, rand_Y) not in self.dispensers:
+                    screen.blit(ice, (rand_X * SQUARE_SIZE, rand_Y * SQUARE_SIZE))
+                    self.busy_cells.append((rand_X, rand_Y))
+                    count_ice += 1
 
     ## TODO: Implement Board functions
