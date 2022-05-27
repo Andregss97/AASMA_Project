@@ -20,7 +20,7 @@
 - no centro de um tabuleiro existe um " food dispenser" com períodos de "cooldown" que distribui pontos por todas as cobras (s1, s2, s3,s4) que colaborassem na sua ativação, da seguinte forma:
     - (  8, -8, -8, -8); em que apenas uma colabora;
 
-    - (  6,  6, -6, -6); em que duas colaboram;
+    - (  4,  4, -4, -4); em que duas colaboram;
 
     - (  3,  3,  3, -3); em que três colaboram;
 
