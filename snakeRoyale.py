@@ -7,6 +7,8 @@ from dispensers import *
 from fruits import *
 from traps import *
 
+MAX_FPS = 20
+
 '''
 Main function. Handles initializing application and updating graphics
 '''
@@ -115,6 +117,7 @@ def main():
             # add points
             reactive_snake.mushrooms += 1
             reactive_snake.globalScore -= 1
+            # TODO: Implement the reduction of points from other snakes (-4)
             
         if reactive_snake.body[0] in traps.ices:
             # snake caught an ice
@@ -130,18 +133,26 @@ def main():
             if reactive_snake.body[0] == Vector2(4,4) and dispensers.TL_DISPENSER_STATE == 0:
                 dispensers.TL_DISPENSER_STATE = 1
                 reactive_snake.dispenser += 1
+                # TODO: Assuming there is only one snake on the board
+                reactive_snake.globalScore += 8
 
             if reactive_snake.body[0] == Vector2(4,15) and dispensers.TR_DISPENSER_STATE == 0:
                 dispensers.TR_DISPENSER_STATE = 1
                 reactive_snake.dispenser += 1
+                # TODO: Assuming there is only one snake on the board
+                reactive_snake.globalScore += 8
 
             if reactive_snake.body[0] == Vector2(15,4) and dispensers.BL_DISPENSER_STATE == 0:
                 dispensers.BL_DISPENSER_STATE = 1
                 reactive_snake.dispenser += 1
+                # TODO: Assuming there is only one snake on the board
+                reactive_snake.globalScore += 8
 
             if reactive_snake.body[0] == Vector2(15,15) and dispensers.BR_DISPENSER_STATE == 0:
                 dispensers.BR_DISPENSER_STATE = 1
                 reactive_snake.dispenser += 1
+                # TODO: Assuming there is only one snake on the board
+                reactive_snake.globalScore += 8
         
         if reactive_snake.body[0] in reactive_snake.body[1:] or reactive_snake.body[0].x < 0 or reactive_snake.body[0].x > board.boardSize or reactive_snake.body[0].y < 0 or reactive_snake.body[0].y > board.boardSize:
             # snake hit itself

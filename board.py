@@ -4,7 +4,6 @@ from random import randrange
 
 WIDTH = HEIGHT = 600 # 900
 DIMENSION = 20 # 30
-MAX_FPS = 20
 SQUARE_SIZE = HEIGHT // DIMENSION
 
 class Board:
