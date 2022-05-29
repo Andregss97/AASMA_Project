@@ -41,6 +41,6 @@ class Reactive_Snake:
 
     def increaseSize(self):
         body_copy = self.body[:]
-        body_copy.insert(0, body_copy[0] + self.direction)
+        body_copy.append(body_copy[-1])
         self.body = body_copy[:]
 
