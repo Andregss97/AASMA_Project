@@ -17,7 +17,7 @@
 
     - bombas que retirariam 1 ponto a quem a capturasse e 4 a todas as cobras adversárias;
 
-- no centro de um tabuleiro existe um " food dispenser" com períodos de "cooldown" que distribui pontos por todas as cobras (s1, s2, s3,s4) que colaborassem na sua ativação, da seguinte forma:
+- no centro de um tabuleiro existe um "food dispenser" com períodos de "cooldown" que distribui pontos por todas as cobras (s1, s2, s3,s4) que colaborassem na sua ativação, da seguinte forma:
     - (  8, -8, -8, -8); em que apenas uma colabora;
 
     - (  4,  4, -4, -4); em que duas colaboram;
@@ -32,7 +32,7 @@ As 4 cobras que idealizámos, para além de procurarem fruta, teriam as seguinte
 
 s1 : prioriza o "food dispenser";
 
-s2 : prioriza os cubos de gelo e as bombas;
+s2 : prioriza os cogumelos e o gelo;
 
 s3 : opta sempre pela ação de maior reward (greedy);
 
