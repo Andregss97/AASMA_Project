@@ -3,6 +3,9 @@ from pygame import Vector2
 import sys
 from board import *
 from reactive_snake import *
+from dispenser_snake import *
+from trap_snake import *
+from deliberative_snake import *
 from dispensers import *
 from fruits import *
 from traps import *
@@ -30,14 +33,17 @@ def main():
     dispensers = Dispensers()
 
     ## Create Snake
-    # olivedrab, orange2, lightslategrey, indianred
+    # deliberative_snake : olivedrab,
+    # reactive_snake : orange2,
+    # trap_snake : lightslategrey,
+    # dispenser_snake : indianred
     reactive_snake = Reactive_Snake()
     
     screen.fill("lemonchiffon1")
+    reactive_snake.drawSnake(screen)
     fruits.drawFruits(screen)
     traps.drawTraps(screen)
     dispensers.drawDispensers(screen)
-    reactive_snake.drawSnake(screen)
     board.drawLines(screen)
 
     SCREEN_UPDATE = p.USEREVENT
@@ -155,7 +161,7 @@ def main():
                 reactive_snake.globalScore += 8
         
         if reactive_snake.body[0] in reactive_snake.body[1:] or reactive_snake.body[0].x < 0 or reactive_snake.body[0].x > board.boardSize or reactive_snake.body[0].y < 0 or reactive_snake.body[0].y > board.boardSize:
-            # snake hit itself
+            # snake hit itself or went off the edges
             print("\n YOU LOST !\n")
             print("----------------------------------------------------------")
             print("----------------------- SCORE BOARD ----------------------")

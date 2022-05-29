@@ -2,11 +2,11 @@ import pygame as p
 from pygame import Vector2
 from board import *
 
-class Reactive_Snake:
+class Deliberative_Snake:
 
     def __init__(self):
-        self.color = "orange2"
-
+        self.color = "olivedrab"
+        
         self.body = [Vector2(7,10), Vector2(6,10), Vector2(5,10)]
         self.direction = p.Vector2(1, 0)
         # TODO: rearrange which snake goes where in the start
@@ -43,4 +43,3 @@ class Reactive_Snake:
         body_copy = self.body[:]
         body_copy.append(body_copy[-1])
         self.body = body_copy[:]
-
