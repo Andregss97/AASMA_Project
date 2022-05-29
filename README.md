@@ -1,6 +1,6 @@
 # Autonomous Agents and Multi-Agent Systems' Project
 ## Snake Royale
-
+![snake royale logo](https://cdn.discordapp.com/attachments/976578382869438514/979510862576492544/snake.png)
 ### Group 64
 
 | Number | Name              | User                                  | Email                                            |
