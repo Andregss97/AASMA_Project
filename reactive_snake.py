@@ -1,6 +1,6 @@
 import pygame as p
 from pygame import Vector2
-from board import *
+from Board import *
 
 class Reactive_Snake:
 
@@ -26,21 +26,31 @@ class Reactive_Snake:
         # shared_dispenser = 0
         # TODO: Criar várias cobras e identificar estes eventos
 
+        self.freezeTimer = 0
+
     def drawSnake (self, screen):
         for cell in self.body:
             x_pos = int(cell.x * SQUARE_SIZE)
             y_pos = int(cell.y * SQUARE_SIZE)
             cell_rect = p.Rect(x_pos, y_pos, SQUARE_SIZE, SQUARE_SIZE)
-
-            p.draw.rect(screen, self.color, cell_rect)
+            color = self.color
+            if self.freezeTimer > 0:
+                color = "cyan1"
+            p.draw.rect(screen, color, cell_rect)
     
     def moveSnake(self):
-        body_copy = self.body[:-1]
-        body_copy.insert(0, body_copy[0] + self.direction)
-        self.body = body_copy[:]
+        if self.freezeTimer == 0:
+            body_copy = self.body[:-1]
+            body_copy.insert(0, body_copy[0] + self.direction)
+            self.body = body_copy[:]
+        else:
+            self.freezeTimer -= 1
 
     def increaseSize(self):
         body_copy = self.body[:]
         body_copy.append(body_copy[-1])
         self.body = body_copy[:]
+
+    def freeze(self):
+        self.freezeTimer = 8
 

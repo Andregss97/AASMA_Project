@@ -1,6 +1,6 @@
 import pygame as p
 from pygame import Vector2
-from board import *
+from Board import *
 
 
 

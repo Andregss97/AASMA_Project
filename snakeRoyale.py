@@ -1,14 +1,12 @@
 import pygame as p
 from pygame import Vector2
 import sys
-from board import *
+from Board import *
 from reactive_snake import *
 from dispenser_snake import *
 from trap_snake import *
 from deliberative_snake import *
-from dispensers import *
-from fruits import *
-from traps import *
+from Dispensers import *
 
 MAX_FPS = 20
 
@@ -22,14 +20,11 @@ def main():
     clock = p.time.Clock()
     screen.fill(p.Color("black"))
     running = True
-    food_spawned = False
+    #food_spawned = False
+    agents = []
 
     ## Generate all items
     board = Board()
-    fruits = Fruits()
-    fruits.definePositions(board)
-    traps = Traps()
-    traps.definePositions(board)
     dispensers = Dispensers()
 
     ## Create Snake
@@ -38,13 +33,11 @@ def main():
     # trap_snake : lightslategrey,
     # dispenser_snake : indianred
     reactive_snake = Reactive_Snake()
-    
-    screen.fill("lemonchiffon1")
-    reactive_snake.drawSnake(screen)
-    fruits.drawFruits(screen)
-    traps.drawTraps(screen)
+    agents.append(reactive_snake)
+
+
     dispensers.drawDispensers(screen)
-    board.drawLines(screen)
+    board.draw(screen, agents)
 
     SCREEN_UPDATE = p.USEREVENT
     p.time.set_timer(SCREEN_UPDATE, 150)
@@ -78,61 +71,8 @@ def main():
                     reactive_snake.direction = Vector2(-1,0)
                 if e.key == p.K_RIGHT and reactive_snake.direction != Vector2(-1,0):
                     reactive_snake.direction = Vector2(1,0)
-        if reactive_snake.body[0] in fruits.apples:
-            # snake caught an apple
-            # print("APPLE!!!")
-            # delete APPLE from the board and fruits class
-            fruits.apples.remove(reactive_snake.body[0])
-            board.busy_cells.remove(reactive_snake.body[0])
-            # increase snake size
-            reactive_snake.increaseSize()
-            # add points
-            reactive_snake.apples += 1
-            reactive_snake.globalScore += 2
-        
-        if reactive_snake.body[0] in fruits.bananas:
-            # snake caught a banana
-            # print("BANANA!!!")
-            # delete APPLE from the board and fruits class
-            fruits.bananas.remove(reactive_snake.body[0])
-            board.busy_cells.remove(reactive_snake.body[0])
-            # increase snake size
-            reactive_snake.increaseSize()
-            # add points
-            reactive_snake.bananas += 1
-            reactive_snake.globalScore += 3
-            
-        if reactive_snake.body[0] in fruits.strawberries:
-            # snake caught a strawberry
-            # print("STRAWBERRY!!!")
-            # delete APPLE from the board and fruits class
-            fruits.strawberries.remove(reactive_snake.body[0])
-            board.busy_cells.remove(reactive_snake.body[0])
-            # increase snake size
-            reactive_snake.increaseSize()
-            # add points
-            reactive_snake.strawberries += 1
-            reactive_snake.globalScore += 5
-            
-        if reactive_snake.body[0] in traps.mushrooms:
-            # snake caught a mushroom
-            # print("MUSHROOM >__<")
-            # delete APPLE from the board and fruits class
-            traps.mushrooms.remove(reactive_snake.body[0])
-            board.busy_cells.remove(reactive_snake.body[0])
-            # add points
-            reactive_snake.mushrooms += 1
-            reactive_snake.globalScore -= 1
-            # TODO: Implement the reduction of points from other snakes (-4)
-            
-        if reactive_snake.body[0] in traps.ices:
-            # snake caught an ice
-            # print("ICE *__*")
-            # delete APPLE from the board and fruits class
-            traps.ices.remove(reactive_snake.body[0])
-            board.busy_cells.remove(reactive_snake.body[0])
-            # add points
-            reactive_snake.ices += 1
+
+        board.update(agents)
             
         if reactive_snake.body[0] in dispensers.dispensers:
             # print("DISPENSER :P")
@@ -177,14 +117,8 @@ def main():
             print("----------------------------------------------------------")
             running = False
 
-        screen.fill("lemonchiffon1")
-        fruits.drawFruits(screen)
-        traps.drawTraps(screen)
-        dispensers.drawDispensers(screen)
+        board.draw(screen, agents)
         dispensers.updateDispenserState(screen)
-        #TODO: Implement the cooldown factor on the dispensers
-        reactive_snake.drawSnake(screen)
-        board.drawLines(screen)
         p.display.update()
         clock.tick(MAX_FPS)
 
