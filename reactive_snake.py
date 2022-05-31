@@ -9,6 +9,7 @@ class Reactive_Snake:
 
         self.body = [Vector2(7,10), Vector2(6,10), Vector2(5,10)]
         self.direction = p.Vector2(1, 0)
+        self.size = len(self.body)
         # TODO: rearrange which snake goes where in the start
         self.globalScore = 0
 
@@ -43,4 +44,5 @@ class Reactive_Snake:
         body_copy = self.body[:]
         body_copy.append(body_copy[-1])
         self.body = body_copy[:]
+        self.size = len(self.body)
 

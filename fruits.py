@@ -11,6 +11,10 @@ NMBR_START_APPLES = 20
 NMBR_START_BANANAS = 10
 NMBR_START_STRAWBERRIES = 3
 
+NMBR_DISPENSER_APPLES = 4
+NMBR_DISPENSER_BANANAS = 2
+NMBR_DISPENSER_STRAWBERRIES = 1
+
 class Fruits:
 
     def __init__(self):
@@ -25,6 +29,11 @@ class Fruits:
         self.apples = board.generateBoardPositions(NMBR_START_APPLES)
         self.bananas = board.generateBoardPositions(NMBR_START_BANANAS)
         self.strawberries = board.generateBoardPositions(NMBR_START_STRAWBERRIES)
+
+    def definePositionsDispenser(self, board: Board):
+        self.apples += board.generateBoardPositions(NMBR_DISPENSER_APPLES)
+        self.bananas += board.generateBoardPositions(NMBR_DISPENSER_BANANAS)
+        self.strawberries += board.generateBoardPositions(NMBR_DISPENSER_STRAWBERRIES)
 
     def drawFruits(self, screen):
 
