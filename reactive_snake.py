@@ -1,4 +1,7 @@
+from random import random
+from xmlrpc.client import MAXINT, MININT
 import pygame as p
+import numpy as np
 from pygame import Vector2
 from board import *
 
@@ -9,7 +12,9 @@ class Reactive_Snake:
 
         self.body = [Vector2(7,10), Vector2(6,10), Vector2(5,10)]
         self.direction = p.Vector2(1, 0)
+        self.objective = p.Vector2
         self.size = len(self.body)
+        self.activedDispenser = False
         # TODO: rearrange which snake goes where in the start
         self.globalScore = 0
 
@@ -26,6 +31,23 @@ class Reactive_Snake:
         self.dispenser = 0
         # shared_dispenser = 0
         # TODO: Criar várias cobras e identificar estes eventos
+
+    def action(self, fruits, dispensers, traps):
+        # Determines which action given the GREEDY priority and updates direction
+        if not self.activedDispenser:
+            positions = fruits.apples + fruits.bananas + fruits.strawberries + dispensers.dispensers + traps.mushrooms + traps.ices
+            points = [fruits.applePoints] * len(fruits.apples) + [fruits.bananaPoints] * len(fruits.bananas) + \
+                [fruits.strawberryPoints] * len(fruits.strawberries) + [dispensers.dispenserPoints] * len(dispensers.dispensers) + \
+                [traps.mushroomPoints] * len(traps.mushrooms) + [traps.icePoints] * len(traps.ices)
+        else:
+            positions = fruits.apples + fruits.bananas + fruits.strawberries + traps.mushrooms + traps.ices
+            points = [fruits.applePoints] * len(fruits.apples) + [fruits.bananaPoints] * len(fruits.bananas) + \
+                [fruits.strawberryPoints] * len(fruits.strawberries) + [traps.mushroomPoints] * len(traps.mushrooms) + [traps.icePoints] * len(traps.ices)
+
+        if(self.objective in positions):
+            self.direction = self.directionToGo(self.objective)
+        else:
+            self.direction = self.selectObjective(positions, points)
 
     def drawSnake (self, screen):
         for cell in self.body:
@@ -46,3 +68,112 @@ class Reactive_Snake:
         self.body = body_copy[:]
         self.size = len(self.body)
 
+
+    def selectObjective(self, objective_positions, points):
+        # Calculates best objective (Worth more and close by)
+        min_dist = MAXINT
+        max_points = MININT
+        for i in range(len(objective_positions)):
+            distance = self.body[0].distance_to(objective_positions[i])
+            if distance < min_dist and points[i] > max_points:
+                min_dist = distance
+                max_points = points[i]
+                move_pos = objective_positions[i]
+                
+        self.objective = move_pos
+        return self.directionToGo(self.objective)
+
+    def directionToGo(self, pos):
+        # Check distance between snake and goto position
+        distance = self.body[0].distance_to(pos)
+        # Possible Moves
+        moveUp = self.body[0] + Vector2(0, 1)
+        moveDown = self.body[0] + Vector2(0, -1)
+        moveLeft = self.body[0] + Vector2(-1, 0)
+        moveRight = self.body[0] + Vector2(1, 0)
+
+        # Check if moving UP is efficiant
+        if distance >= pos.distance_to(moveUp):
+            if self.direction != Vector2(0, -1) and moveUp not in self.body:
+                return Vector2(0, 1)
+            elif pos.distance_to(moveLeft) < pos.distance_to(moveRight) and moveLeft not in self.body:
+                return Vector2(-1, 0)
+            elif pos.distance_to(moveLeft) > pos.distance_to(moveRight) and moveRight not in self.body:
+                return Vector2(1, 0)
+            elif pos.distance_to(moveLeft) == pos.distance_to(moveRight):
+                if moveRight not in self.body:
+                    return Vector2(1, 0)
+                elif moveLeft not in self.body:
+                    return Vector2(-1, 0)
+            elif moveRight not in self.body:
+                    return Vector2(1, 0)
+            elif moveLeft not in self.body:
+                return Vector2(-1, 0)
+            else:
+                print("ELSE")
+                return self.direction
+
+        # Check if moving DOWN is efficiant
+        if distance >= pos.distance_to(moveDown):
+            if self.direction != Vector2(0, 1) and moveDown not in self.body:
+                return Vector2(0, -1)
+            elif pos.distance_to(moveLeft) < pos.distance_to(moveRight) and moveLeft not in self.body:
+                return Vector2(-1, 0)
+            elif pos.distance_to(moveLeft) > pos.distance_to(moveRight) and moveRight not in self.body:
+                return Vector2(1, 0)
+            elif pos.distance_to(moveLeft) == pos.distance_to(moveRight):
+                if moveRight not in self.body:
+                    return Vector2(1, 0)
+                elif moveLeft not in self.body:
+                    return Vector2(-1, 0)
+            elif moveRight not in self.body:
+                    return Vector2(1, 0)
+            elif moveLeft not in self.body:
+                return Vector2(-1, 0)
+            else:
+                print("ELSE")
+                return self.direction
+        
+        # Check if moving RIGHT is efficiant
+        if distance >= pos.distance_to(moveRight):
+            if self.direction != Vector2(-1, 0) and moveRight not in self.body:
+                return Vector2(1, 0)
+            elif pos.distance_to(moveUp) < pos.distance_to(moveDown) and moveUp not in self.body:
+                return Vector2(0, 1)
+            elif pos.distance_to(moveUp) > pos.distance_to(moveDown) and moveDown not in self.body:
+                return Vector2(0, -1)
+            elif pos.distance_to(moveUp) == pos.distance_to(moveDown):
+                if moveUp not in self.body:
+                    return Vector2(0, 1)
+                elif moveDown not in self.body:
+                    return Vector2(0, -1)
+            elif moveUp not in self.body:
+                    return Vector2(0, 1)
+            elif moveDown not in self.body:
+                return Vector2(0, -1)
+            else:
+                print("ELSE")
+                return self.direction
+
+        # Check if moving LEFT is efficiant
+        if distance >= pos.distance_to(moveLeft):
+            if self.direction != Vector2(1, 0) and moveLeft not in self.body:
+                return Vector2(-1, 0)
+            elif pos.distance_to(moveUp) < pos.distance_to(moveDown) and moveUp not in self.body:
+                return Vector2(0, 1)
+            elif pos.distance_to(moveUp) > pos.distance_to(moveDown) and moveDown not in self.body:
+                return Vector2(0, -1)
+            elif pos.distance_to(moveUp) == pos.distance_to(moveDown):
+                if moveUp not in self.body:
+                    return Vector2(0, 1)
+                elif moveDown not in self.body:
+                    return Vector2(0, -1)
+            elif moveUp not in self.body:
+                    return Vector2(0, 1)
+            elif moveDown not in self.body:
+                return Vector2(0, -1)
+            else:
+                print("ELSE")
+                return self.direction
+        
+        

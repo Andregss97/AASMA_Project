@@ -16,6 +16,8 @@ class Traps:
         self.ices = []
         self.mushroomNMB = NMBR_START_MUSHROOMS
         self.iceNMB = NMBR_START_ICES
+        self.mushroomPoints = -1
+        self.icePoints = 0
 
     def definePositions(self, board: Board):
         self.mushrooms = board.generateBoardPositions(NMBR_START_MUSHROOMS)

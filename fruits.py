@@ -24,6 +24,9 @@ class Fruits:
         self.appleNMB = NMBR_START_APPLES
         self.bananaNMB = NMBR_START_BANANAS
         self.strawberryNMB = NMBR_START_STRAWBERRIES
+        self.applePoints = 2
+        self.bananaPoints = 3
+        self.strawberryPoints = 5
 
     def definePositions(self, board: Board):
         self.apples = board.generateBoardPositions(NMBR_START_APPLES)

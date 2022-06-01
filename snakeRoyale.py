@@ -69,7 +69,10 @@ def main():
                 p.quit()
                 sys.exit()
             if e.type == SCREEN_UPDATE:
+                reactive_snake.action(fruits, dispensers, traps)
                 reactive_snake.moveSnake()
+                
+            '''
             if e.type == p.KEYDOWN:
                 if e.key == p.K_UP and reactive_snake.direction != Vector2(0,1):
                     reactive_snake.direction = Vector2(0,-1)
@@ -79,6 +82,7 @@ def main():
                     reactive_snake.direction = Vector2(-1,0)
                 if e.key == p.K_RIGHT and reactive_snake.direction != Vector2(-1,0):
                     reactive_snake.direction = Vector2(1,0)
+            '''
         if reactive_snake.body[0] in fruits.apples:
             # snake caught an apple
             # print("APPLE!!!")
@@ -89,7 +93,7 @@ def main():
             reactive_snake.increaseSize()
             # add points
             reactive_snake.apples += 1
-            reactive_snake.globalScore += 2
+            reactive_snake.globalScore += fruits.applePoints
         
         if reactive_snake.body[0] in fruits.bananas:
             # snake caught a banana
@@ -101,7 +105,7 @@ def main():
             reactive_snake.increaseSize()
             # add points
             reactive_snake.bananas += 1
-            reactive_snake.globalScore += 3
+            reactive_snake.globalScore += fruits.bananaPoints
             
         if reactive_snake.body[0] in fruits.strawberries:
             # snake caught a strawberry
@@ -113,7 +117,7 @@ def main():
             reactive_snake.increaseSize()
             # add points
             reactive_snake.strawberries += 1
-            reactive_snake.globalScore += 5
+            reactive_snake.globalScore += fruits.strawberryPoints
             
         if reactive_snake.body[0] in traps.mushrooms:
             # snake caught a mushroom
@@ -140,6 +144,7 @@ def main():
             for dispenserPos in dispensers.dispensers:
                 if reactive_snake.body[0] == dispenserPos and dispensers.STATE == 0:
                     dispensers.STATE = 1
+                    reactive_snake.activedDispenser = True
                     dispenserTimer = p.time.get_ticks()
         
         else:
@@ -154,6 +159,7 @@ def main():
             
             if dispensers.STATE == 2 and p.time.get_ticks() - dispenserCooldown >= 5000:
                 dispensers.STATE = 0
+                reactive_snake.activedDispenser = False
 
         
         if reactive_snake.body[0] in reactive_snake.body[1:] or reactive_snake.body[0].x < 0 or reactive_snake.body[0].x > board.boardSize or reactive_snake.body[0].y < 0 or reactive_snake.body[0].y > board.boardSize:
@@ -173,7 +179,7 @@ def main():
             print("----------------------------------------------------------")
             running = False
 
-        elif reactive_snake.size == 40 or reactive_snake.globalScore >= 100:
+        '''elif reactive_snake.size == 40 or reactive_snake.globalScore >= 100:
             # snake achieved the maximum size or points and WON!
             print("\n YOU WIN !\n")
             print("----------------------------------------------------------")
@@ -188,7 +194,7 @@ def main():
             print("Ice: ", reactive_snake.ices)
             print("Dispenser: ", reactive_snake.dispenser)
             print("----------------------------------------------------------")
-            running = False
+            running = False'''
 
         screen.fill("lemonchiffon1")
         fruits.drawFruits(screen)
