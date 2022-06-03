@@ -9,7 +9,7 @@ cooldown = p.image.load('snake_imgs/cooldown.svg')
 class Dispensers:
 
     def __init__(self):
-        self.dispensers = [Vector2(4,4), Vector2(4,15), Vector2(15,4), Vector2(15,15)]
+        self.dispensers = [Vector2(6,6), Vector2(6,23), Vector2(23,6), Vector2(23,23)]
         self.dispenser_color = p.Color("hotpink1")
         # Dispenser States : 0 - ACTIVE , 1 - WAITING , 2 - ON COOLDOWN
         self.STATE = 0  # dispensers state

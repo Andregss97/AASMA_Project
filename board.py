@@ -2,8 +2,8 @@ import pygame as p
 from pygame import Vector2
 from random import randrange
 
-WIDTH = HEIGHT = 600 # 900
-DIMENSION = 20 # 30
+WIDTH = HEIGHT = 900 # 600
+DIMENSION = 30 # 20
 SQUARE_SIZE = HEIGHT // DIMENSION
 
 class Board:
@@ -11,7 +11,7 @@ class Board:
     def __init__(self):
         self.boardSize = DIMENSION
         self.tileSize = DIMENSION*SQUARE_SIZE
-        self.busy_cells = [Vector2(4,4), Vector2(4,15), Vector2(15,4), Vector2(15,15)] # Initialized with DISPENSERS' positions
+        self.busy_cells = [Vector2(6,6), Vector2(6,23), Vector2(23,6), Vector2(23,23)] # Initialized with DISPENSERS' positions
     
     def drawLines (self, screen):
         lines_color = p.Color("black")
