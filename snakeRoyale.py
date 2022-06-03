@@ -144,7 +144,7 @@ def main():
             for dispenserPos in dispensers.dispensers:
                 if reactive_snake.body[0] == dispenserPos and dispensers.STATE == 0:
                     dispensers.STATE = 1
-                    reactive_snake.activedDispenser = True
+                    reactive_snake.activeDispenser = True
                     dispenserTimer = p.time.get_ticks()
         
         else:
@@ -159,10 +159,10 @@ def main():
             
             if dispensers.STATE == 2 and p.time.get_ticks() - dispenserCooldown >= 5000:
                 dispensers.STATE = 0
-                reactive_snake.activedDispenser = False
+                reactive_snake.activeDispenser = False
 
         
-        if reactive_snake.body[0] in reactive_snake.body[1:] or reactive_snake.body[0].x < 0 or reactive_snake.body[0].x > board.boardSize or reactive_snake.body[0].y < 0 or reactive_snake.body[0].y > board.boardSize:
+        if reactive_snake.body[0] in reactive_snake.body[1:] or reactive_snake.body[0].x < 0 or reactive_snake.body[0].x >= board.boardSize or reactive_snake.body[0].y < 0 or reactive_snake.body[0].y >= board.boardSize:
             # snake hit itself or went off the edges
             print("\n YOU LOST !\n")
             print("----------------------------------------------------------")

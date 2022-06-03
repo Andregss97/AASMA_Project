@@ -14,7 +14,7 @@ class Reactive_Snake:
         self.direction = p.Vector2(1, 0)
         self.objective = p.Vector2
         self.size = len(self.body)
-        self.activedDispenser = False
+        self.activeDispenser = False
         # TODO: rearrange which snake goes where in the start
         self.globalScore = 0
 
@@ -34,20 +34,20 @@ class Reactive_Snake:
 
     def action(self, fruits, dispensers, traps):
         # Determines which action given the GREEDY priority and updates direction
-        if not self.activedDispenser:
-            positions = fruits.apples + fruits.bananas + fruits.strawberries + dispensers.dispensers + traps.mushrooms + traps.ices
-            points = [fruits.applePoints] * len(fruits.apples) + [fruits.bananaPoints] * len(fruits.bananas) + \
-                [fruits.strawberryPoints] * len(fruits.strawberries) + [dispensers.dispenserPoints] * len(dispensers.dispensers) + \
-                [traps.mushroomPoints] * len(traps.mushrooms) + [traps.icePoints] * len(traps.ices)
-        else:
-            positions = fruits.apples + fruits.bananas + fruits.strawberries + traps.mushrooms + traps.ices
-            points = [fruits.applePoints] * len(fruits.apples) + [fruits.bananaPoints] * len(fruits.bananas) + \
-                [fruits.strawberryPoints] * len(fruits.strawberries) + [traps.mushroomPoints] * len(traps.mushrooms) + [traps.icePoints] * len(traps.ices)
+        if not self.activeDispenser:
+            positions = dispensers.dispensers + fruits.strawberries + fruits.bananas  + fruits.apples + traps.ices + traps.mushrooms
+            points = [dispensers.dispenserPoints] * len(dispensers.dispensers) + [fruits.strawberryPoints] * len(fruits.strawberries) + [fruits.bananaPoints] * len(fruits.bananas) + \
+                [fruits.applePoints] * len(fruits.apples) +  [traps.icePoints] * len(traps.ices) + [traps.mushroomPoints] * len(traps.mushrooms)
 
-        if(self.objective in positions):
-            self.direction = self.directionToGo(self.objective)
         else:
-            self.direction = self.selectObjective(positions, points)
+            positions = fruits.strawberries + fruits.bananas + fruits.apples + traps.ices + traps.mushrooms
+            points = [fruits.strawberryPoints] * len(fruits.strawberries) + [fruits.bananaPoints] * len(fruits.bananas) + \
+                [fruits.applePoints] * len(fruits.apples) + [traps.icePoints] * len(traps.ices) + [traps.mushroomPoints] * len(traps.mushrooms) 
+
+        '''if(self.objective in positions):
+            self.direction = self.directionToGo(self.objective)
+        else:'''
+        self.direction = self.selectObjective(positions, points)
 
     def drawSnake (self, screen):
         for cell in self.body:
@@ -75,10 +75,11 @@ class Reactive_Snake:
         max_points = MININT
         for i in range(len(objective_positions)):
             distance = self.body[0].distance_to(objective_positions[i])
-            if distance < min_dist and points[i] > max_points:
-                min_dist = distance
-                max_points = points[i]
-                move_pos = objective_positions[i]
+            if points[i] >= max_points:
+                if distance < min_dist:
+                    min_dist = distance
+                    max_points = points[i]
+                    move_pos = objective_positions[i]
                 
         self.objective = move_pos
         return self.directionToGo(self.objective)
@@ -110,7 +111,6 @@ class Reactive_Snake:
             elif moveLeft not in self.body:
                 return Vector2(-1, 0)
             else:
-                print("ELSE")
                 return self.direction
 
         # Check if moving DOWN is efficiant
@@ -131,7 +131,6 @@ class Reactive_Snake:
             elif moveLeft not in self.body:
                 return Vector2(-1, 0)
             else:
-                print("ELSE")
                 return self.direction
         
         # Check if moving RIGHT is efficiant
@@ -152,7 +151,6 @@ class Reactive_Snake:
             elif moveDown not in self.body:
                 return Vector2(0, -1)
             else:
-                print("ELSE")
                 return self.direction
 
         # Check if moving LEFT is efficiant
@@ -173,7 +171,6 @@ class Reactive_Snake:
             elif moveDown not in self.body:
                 return Vector2(0, -1)
             else:
-                print("ELSE")
                 return self.direction
         
         
