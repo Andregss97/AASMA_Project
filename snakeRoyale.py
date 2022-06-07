@@ -1,4 +1,5 @@
 from time import time
+from turtle import Screen
 import pygame as p
 from pygame import Vector2
 import sys
@@ -22,6 +23,7 @@ def main():
     screen = p.display.set_mode((WIDTH, HEIGHT))
     clock = p.time.Clock()
     screen.fill(p.Color("black"))
+    snakes = []
     running = True
     food_spawned = False
 
@@ -39,9 +41,12 @@ def main():
     # trap_snake : lightslategrey,
     # dispenser_snake : indianred
     reactive_snake = Reactive_Snake()
-    
+    snakes.append(reactive_snake)
+    dispenser_snake = Dispenser_Snake()
+    snakes.append(dispenser_snake)
     screen.fill("lemonchiffon1")
     reactive_snake.drawSnake(screen)
+    dispenser_snake.drawSnake(screen)
     fruits.drawFruits(screen)
     traps.drawTraps(screen)
     dispensers.drawDispensers(screen)
@@ -65,12 +70,26 @@ def main():
                 print("Mushrooms: ", reactive_snake.mushrooms, "x(-1) points")
                 print("Ice: ", reactive_snake.ices)
                 print("Dispenser: ", reactive_snake.dispenser)
+                print("----------------------------------------------------------\n")
+                print("----------------------------------------------------------")
+                print("----------------------- SCORE BOARD ----------------------")
+                print("----------------------------------------------------------")
+                print("Global Score: ", dispenser_snake.globalScore)
+                print("Snake Size: ", dispenser_snake.size)
+                print("Apples: ", dispenser_snake.apples, " x2 points")
+                print("Bananas: ", dispenser_snake.bananas, " x3 points")
+                print("Strawberries: ", dispenser_snake.strawberries, " x5 points")
+                print("Mushrooms: ", dispenser_snake.mushrooms, "x(-1) points")
+                print("Ice: ", dispenser_snake.ices)
+                print("Dispenser: ", dispenser_snake.dispenser)
                 print("----------------------------------------------------------")
                 p.quit()
                 sys.exit()
             if e.type == SCREEN_UPDATE:
-                reactive_snake.action(fruits, dispensers, traps)
+                reactive_snake.action(fruits, dispensers, traps, snakes)
+                dispenser_snake.action(fruits, dispensers, traps, snakes)
                 reactive_snake.moveSnake()
+                dispenser_snake.moveSnake()
                 
             '''
             if e.type == p.KEYDOWN:
@@ -83,6 +102,9 @@ def main():
                 if e.key == p.K_RIGHT and reactive_snake.direction != Vector2(-1,0):
                     reactive_snake.direction = Vector2(1,0)
             '''
+
+        # REACTIVE SNAKE
+
         if reactive_snake.body[0] in fruits.apples:
             # snake caught an apple
             # print("APPLE!!!")
@@ -139,35 +161,134 @@ def main():
             # add points
             reactive_snake.ices += 1
             
-        if reactive_snake.body[0] in dispensers.dispensers:
+        if reactive_snake.body[0] in dispensers.dispensers and not reactive_snake.activeDispenser:
             # print("DISPENSER :P")
             for dispenserPos in dispensers.dispensers:
                 if reactive_snake.body[0] == dispenserPos and dispensers.STATE == 0:
-                    dispensers.STATE = 1
                     reactive_snake.activeDispenser = True
+                    dispensers.num_snakes += 1
+                    reactive_snake.dispenser += 1
                     dispenserTimer = p.time.get_ticks()
+                if reactive_snake.body[0] == dispenserPos and dispensers.STATE == 1:
+                    reactive_snake.activeDispenser = True
+                    dispensers.num_snakes += 1
+                    reactive_snake.dispenser += 1   
+            if dispensers.STATE == 0 and reactive_snake.activeDispenser:
+                dispensers.STATE = 1                 
+
+
+        # DISPENSER SNAKE
+
+        if dispenser_snake.body[0] in fruits.apples:
+            # snake caught an apple
+            # print("APPLE!!!")
+            # delete APPLE from the board and fruits class
+            fruits.apples.remove(dispenser_snake.body[0])
+            board.busy_cells.remove(dispenser_snake.body[0])
+            # increase snake size
+            dispenser_snake.increaseSize()
+            # add points
+            dispenser_snake.apples += 1
+            dispenser_snake.globalScore += fruits.applePoints
+        
+        if dispenser_snake.body[0] in fruits.bananas:
+            # snake caught a banana
+            # print("BANANA!!!")
+            # delete APPLE from the board and fruits class
+            fruits.bananas.remove(dispenser_snake.body[0])
+            board.busy_cells.remove(dispenser_snake.body[0])
+            # increase snake size
+            dispenser_snake.increaseSize()
+            # add points
+            dispenser_snake.bananas += 1
+            dispenser_snake.globalScore += fruits.bananaPoints
+            
+        if dispenser_snake.body[0] in fruits.strawberries:
+            # snake caught a strawberry
+            # print("STRAWBERRY!!!")
+            # delete APPLE from the board and fruits class
+            fruits.strawberries.remove(dispenser_snake.body[0])
+            board.busy_cells.remove(dispenser_snake.body[0])
+            # increase snake size
+            dispenser_snake.increaseSize()
+            # add points
+            dispenser_snake.strawberries += 1
+            dispenser_snake.globalScore += fruits.strawberryPoints
+            
+        if dispenser_snake.body[0] in traps.mushrooms:
+            # snake caught a mushroom
+            # print("MUSHROOM >__<")
+            # delete APPLE from the board and fruits class
+            traps.mushrooms.remove(dispenser_snake.body[0])
+            board.busy_cells.remove(dispenser_snake.body[0])
+            # add points
+            dispenser_snake.mushrooms += 1
+            dispenser_snake.globalScore -= 1
+            # TODO: Implement the reduction of points from other snakes (-4)
+            
+        if dispenser_snake.body[0] in traps.ices:
+            # snake caught an ice
+            # print("ICE *__*")
+            # delete APPLE from the board and fruits class
+            traps.ices.remove(dispenser_snake.body[0])
+            board.busy_cells.remove(dispenser_snake.body[0])
+            # add points
+            dispenser_snake.ices += 1
+            
+        if dispenser_snake.body[0] in dispensers.dispensers and not dispenser_snake.activeDispenser:
+            # print("DISPENSER :P")
+            for dispenserPos in dispensers.dispensers:
+                if dispenser_snake.body[0] == dispenserPos and dispensers.STATE == 0:
+                    dispenser_snake.activeDispenser = True
+                    dispensers.num_snakes += 1
+                    dispenser_snake.dispenser += 1
+                    dispenserTimer = p.time.get_ticks()
+                elif dispenser_snake.body[0] == dispenserPos and dispensers.STATE == 1:
+                    dispenser_snake.activeDispenser = True
+                    dispensers.num_snakes += 1
+                    dispenser_snake.dispenser += 1
+            if dispensers.STATE == 0 and dispenser_snake.activeDispenser:
+                dispensers.STATE = 1    
+                    
+
         
         else:
             # Check dispenser timer and put in cooldown
             if dispensers.STATE == 1 and p.time.get_ticks() - dispenserTimer >= 5000:
                 fruits.definePositionsDispenser(board)
                 dispensers.STATE = 2
-                reactive_snake.dispenser += 1
                 # TODO: Assuming there is only one snake on the board // Add if to check which snakes have the propertie REWARD at true, divide the points and distribute to each one
-                reactive_snake.globalScore += 8
+                if dispensers.num_snakes <= 2:
+                    if reactive_snake.activeDispenser:
+                        reactive_snake.globalScore += 8//dispensers.num_snakes
+                    if dispenser_snake.activeDispenser:
+                        dispenser_snake.globalScore += 8//dispensers.num_snakes
+                elif dispensers.num_snakes == 3:
+                    if reactive_snake.activeDispenser:
+                        reactive_snake.globalScore += 2
+                    if dispenser_snake.activeDispenser:
+                        dispenser_snake.globalScore += 2
+                elif dispensers.num_snakes == 4:
+                    reactive_snake.globalScore += 1
+                    dispenser_snake.globalScore += 1
+                    
+
                 dispenserCooldown = p.time.get_ticks()
             
             if dispensers.STATE == 2 and p.time.get_ticks() - dispenserCooldown >= 5000:
                 dispensers.STATE = 0
                 reactive_snake.activeDispenser = False
+                dispenser_snake.activeDispenser = False
+                dispensers.num_snakes = 0
 
         
         if reactive_snake.body[0] in reactive_snake.body[1:] or reactive_snake.body[0].x < 0 or reactive_snake.body[0].x >= board.boardSize or reactive_snake.body[0].y < 0 or reactive_snake.body[0].y >= board.boardSize:
             # snake hit itself or went off the edges
-            print("\n YOU LOST !\n")
+            print("\n REACTIVE SNAKE LOST !\n")
             print("----------------------------------------------------------")
             print("----------------------- SCORE BOARD ----------------------")
-            print("----------------------------------------------------------")
+            print("----------------------------------------------------------\n")
+            print("---------------------- REACTIVE SNAKE --------------------")
             print("Global Score: ", reactive_snake.globalScore)
             print("Snake Size: ", reactive_snake.size)
             print("Apples: ", reactive_snake.apples, " x2 points")
@@ -176,6 +297,42 @@ def main():
             print("Mushrooms: ", reactive_snake.mushrooms, "x(-1) points")
             print("Ice: ", reactive_snake.ices)
             print("Dispenser: ", reactive_snake.dispenser)
+            print("---------------------- DISPENSER SNAKE --------------------")
+            print("Global Score: ", dispenser_snake.globalScore)
+            print("Snake Size: ", dispenser_snake.size)
+            print("Apples: ", dispenser_snake.apples, " x2 points")
+            print("Bananas: ", dispenser_snake.bananas, " x3 points")
+            print("Strawberries: ", dispenser_snake.strawberries, " x5 points")
+            print("Mushrooms: ", dispenser_snake.mushrooms, "x(-1) points")
+            print("Ice: ", dispenser_snake.ices)
+            print("Dispenser: ", dispenser_snake.dispenser)
+            print("----------------------------------------------------------")
+            running = False
+        
+        if dispenser_snake.body[0] in dispenser_snake.body[1:] or dispenser_snake.body[0].x < 0 or dispenser_snake.body[0].x >= board.boardSize or dispenser_snake.body[0].y < 0 or dispenser_snake.body[0].y >= board.boardSize:
+            # snake hit itself or went off the edges
+            print("\n DISPENSER SNAKE LOST !\n")
+            print("----------------------------------------------------------")
+            print("----------------------- SCORE BOARD ----------------------")
+            print("----------------------------------------------------------\n")
+            print("---------------------- REACTIVE SNAKE --------------------")
+            print("Global Score: ", reactive_snake.globalScore)
+            print("Snake Size: ", reactive_snake.size)
+            print("Apples: ", reactive_snake.apples, " x2 points")
+            print("Bananas: ", reactive_snake.bananas, " x3 points")
+            print("Strawberries: ", reactive_snake.strawberries, " x5 points")
+            print("Mushrooms: ", reactive_snake.mushrooms, "x(-1) points")
+            print("Ice: ", reactive_snake.ices)
+            print("Dispenser: ", reactive_snake.dispenser)
+            print("---------------------- DISPENSER SNAKE --------------------")
+            print("Global Score: ", dispenser_snake.globalScore)
+            print("Snake Size: ", dispenser_snake.size)
+            print("Apples: ", dispenser_snake.apples, " x2 points")
+            print("Bananas: ", dispenser_snake.bananas, " x3 points")
+            print("Strawberries: ", dispenser_snake.strawberries, " x5 points")
+            print("Mushrooms: ", dispenser_snake.mushrooms, "x(-1) points")
+            print("Ice: ", dispenser_snake.ices)
+            print("Dispenser: ", dispenser_snake.dispenser)
             print("----------------------------------------------------------")
             running = False
 
@@ -203,6 +360,7 @@ def main():
         dispensers.updateDispenserState(screen)
         #TODO: Implement the cooldown factor on the dispensers
         reactive_snake.drawSnake(screen)
+        dispenser_snake.drawSnake(screen)
         board.drawLines(screen)
         p.display.update()
         clock.tick(MAX_FPS)

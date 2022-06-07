@@ -4,6 +4,7 @@ import pygame as p
 import numpy as np
 from pygame import Vector2
 from board import *
+from Node import *
 
 class Reactive_Snake:
 
@@ -32,23 +33,6 @@ class Reactive_Snake:
         # shared_dispenser = 0
         # TODO: Criar várias cobras e identificar estes eventos
 
-    def action(self, fruits, dispensers, traps):
-        # Determines which action given the GREEDY priority and updates direction
-        if not self.activeDispenser:
-            positions = dispensers.dispensers + fruits.strawberries + fruits.bananas  + fruits.apples + traps.ices + traps.mushrooms
-            points = [dispensers.dispenserPoints] * len(dispensers.dispensers) + [fruits.strawberryPoints] * len(fruits.strawberries) + [fruits.bananaPoints] * len(fruits.bananas) + \
-                [fruits.applePoints] * len(fruits.apples) +  [traps.icePoints] * len(traps.ices) + [traps.mushroomPoints] * len(traps.mushrooms)
-
-        else:
-            positions = fruits.strawberries + fruits.bananas + fruits.apples + traps.ices + traps.mushrooms
-            points = [fruits.strawberryPoints] * len(fruits.strawberries) + [fruits.bananaPoints] * len(fruits.bananas) + \
-                [fruits.applePoints] * len(fruits.apples) + [traps.icePoints] * len(traps.ices) + [traps.mushroomPoints] * len(traps.mushrooms) 
-
-        '''if(self.objective in positions):
-            self.direction = self.directionToGo(self.objective)
-        else:'''
-        self.direction = self.selectObjective(positions, points)
-
     def drawSnake (self, screen):
         for cell in self.body:
             x_pos = int(cell.x * SQUARE_SIZE)
@@ -69,108 +53,75 @@ class Reactive_Snake:
         self.size = len(self.body)
 
 
-    def selectObjective(self, objective_positions, points):
-        # Calculates best objective (Worth more and close by)
-        min_dist = MAXINT
-        max_points = MININT
-        for i in range(len(objective_positions)):
-            distance = self.body[0].distance_to(objective_positions[i])
-            if points[i] >= max_points:
-                if distance < min_dist:
-                    min_dist = distance
-                    max_points = points[i]
-                    move_pos = objective_positions[i]
-                
-        self.objective = move_pos
-        return self.directionToGo(self.objective)
+    def search(self, start, goals, obstacles, actions):
+        open = []
+        closed = []
+        path = []
 
-    def directionToGo(self, pos):
-        # Check distance between snake and goto position
-        distance = self.body[0].distance_to(pos)
-        # Possible Moves
-        moveUp = self.body[0] + Vector2(0, 1)
-        moveDown = self.body[0] + Vector2(0, -1)
-        moveLeft = self.body[0] + Vector2(-1, 0)
-        moveRight = self.body[0] + Vector2(1, 0)
+        start_node = Node(start, None)
+        goal_nodes = [Node(g, None) for g in goals]
 
-        # Check if moving UP is efficiant
-        if distance >= pos.distance_to(moveUp):
-            if self.direction != Vector2(0, -1) and moveUp not in self.body:
-                return Vector2(0, 1)
-            elif pos.distance_to(moveLeft) < pos.distance_to(moveRight) and moveLeft not in self.body:
-                return Vector2(-1, 0)
-            elif pos.distance_to(moveLeft) > pos.distance_to(moveRight) and moveRight not in self.body:
-                return Vector2(1, 0)
-            elif pos.distance_to(moveLeft) == pos.distance_to(moveRight):
-                if moveRight not in self.body:
-                    return Vector2(1, 0)
-                elif moveLeft not in self.body:
-                    return Vector2(-1, 0)
-            elif moveRight not in self.body:
-                    return Vector2(1, 0)
-            elif moveLeft not in self.body:
-                return Vector2(-1, 0)
-            else:
-                return self.direction
+        open.append(start_node)
 
-        # Check if moving DOWN is efficiant
-        if distance >= pos.distance_to(moveDown):
-            if self.direction != Vector2(0, 1) and moveDown not in self.body:
-                return Vector2(0, -1)
-            elif pos.distance_to(moveLeft) < pos.distance_to(moveRight) and moveLeft not in self.body:
-                return Vector2(-1, 0)
-            elif pos.distance_to(moveLeft) > pos.distance_to(moveRight) and moveRight not in self.body:
-                return Vector2(1, 0)
-            elif pos.distance_to(moveLeft) == pos.distance_to(moveRight):
-                if moveRight not in self.body:
-                    return Vector2(1, 0)
-                elif moveLeft not in self.body:
-                    return Vector2(-1, 0)
-            elif moveRight not in self.body:
-                    return Vector2(1, 0)
-            elif moveLeft not in self.body:
-                return Vector2(-1, 0)
-            else:
-                return self.direction
-        
-        # Check if moving RIGHT is efficiant
-        if distance >= pos.distance_to(moveRight):
-            if self.direction != Vector2(-1, 0) and moveRight not in self.body:
-                return Vector2(1, 0)
-            elif pos.distance_to(moveUp) < pos.distance_to(moveDown) and moveUp not in self.body:
-                return Vector2(0, 1)
-            elif pos.distance_to(moveUp) > pos.distance_to(moveDown) and moveDown not in self.body:
-                return Vector2(0, -1)
-            elif pos.distance_to(moveUp) == pos.distance_to(moveDown):
-                if moveUp not in self.body:
-                    return Vector2(0, 1)
-                elif moveDown not in self.body:
-                    return Vector2(0, -1)
-            elif moveUp not in self.body:
-                    return Vector2(0, 1)
-            elif moveDown not in self.body:
-                return Vector2(0, -1)
-            else:
-                return self.direction
+        while len(open) > 0:
+            open.sort()
+            node = open.pop(0)
+            closed.append(node)
+            if node in goal_nodes:
+                while node != start_node:
+                    path.append(node.state)
+                    node = node.parent
+                path.append(node.state)
+                return path[::-1]
 
-        # Check if moving LEFT is efficiant
-        if distance >= pos.distance_to(moveLeft):
-            if self.direction != Vector2(1, 0) and moveLeft not in self.body:
-                return Vector2(-1, 0)
-            elif pos.distance_to(moveUp) < pos.distance_to(moveDown) and moveUp not in self.body:
-                return Vector2(0, 1)
-            elif pos.distance_to(moveUp) > pos.distance_to(moveDown) and moveDown not in self.body:
-                return Vector2(0, -1)
-            elif pos.distance_to(moveUp) == pos.distance_to(moveDown):
-                if moveUp not in self.body:
-                    return Vector2(0, 1)
-                elif moveDown not in self.body:
-                    return Vector2(0, -1)
-            elif moveUp not in self.body:
-                    return Vector2(0, 1)
-            elif moveDown not in self.body:
-                return Vector2(0, -1)
-            else:
-                return self.direction
+            children = self.getChildren(node, obstacles, actions)
+            for child in children:
+                if child not in closed and self.lowest_f(open, child):
+                    open.append(child)
+
+        return path[::-1]
+
+    def lowest_f(self, open, child):
+        for node in open:
+            if (node == child and node.f <= child.f):
+                return False
+        return True
+
+    def getChildren(self, parent, obstacles, actions):
+        children = []
+        for a in actions:
+            neighbour_pos = parent.state + a
+            if neighbour_pos not in obstacles:
+                newChild = Node(neighbour_pos, parent)
+                newChild.g = parent.g + 1
+                newChild.h = Vector2.distance_squared_to(parent.state, neighbour_pos)
+                children.append(newChild)
+        return children
+
+
+    def action(self, fruits, dispensers, traps, snakes):
+        actions = [Vector2(0,1), Vector2(0,-1), Vector2(1,0), Vector2(-1,0)]
+        obstacles = []
+        for s in snakes:
+            obstacles.extend(s.body)
+        if not self.activeDispenser and dispensers.STATE != 2:
+            goals = dispensers.dispensers
+        elif fruits.strawberries != []:
+            goals = fruits.strawberries
+        elif fruits.bananas != []:
+            goals = fruits.bananas
+        elif fruits.apples != []:
+            goals = fruits.apples
+        else:
+            goals = traps.mushrooms + traps.ices
+
+        path = self.search(self.body[0], goals, obstacles, actions)
+
+        if len(path) < 2: # can't find/end of path, pick any legal move
+            for a in actions:
+                if self.body[0] + a not in obstacles:
+                    self.direction = a
+        else:
+            self.direction = path[1] - path[0]
         
         
