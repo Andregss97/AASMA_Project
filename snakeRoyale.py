@@ -1,5 +1,3 @@
-from time import time
-from turtle import Screen
 import pygame as p
 from pygame import Vector2
 import sys
@@ -12,7 +10,7 @@ from dispensers import *
 from fruits import *
 from traps import *
 
-MAX_FPS = 10
+MAX_FPS = 60
 
 '''
 Main function. Handles initializing application and updating graphics
@@ -25,6 +23,7 @@ def main():
     screen.fill(p.Color("black"))
     snakes = []
     running = True
+    score = False
     food_spawned = False
 
     ## Generate all items
@@ -53,7 +52,7 @@ def main():
     board.drawLines(screen)
 
     SCREEN_UPDATE = p.USEREVENT
-    p.time.set_timer(SCREEN_UPDATE, 300)
+    p.time.set_timer(SCREEN_UPDATE, 500)
 
     while running:
         for e in p.event.get():
@@ -176,6 +175,7 @@ def main():
             if dispensers.STATE == 0 and reactive_snake.activeDispenser:
                 dispensers.STATE = 1                 
 
+        ############################################################################
 
         # DISPENSER SNAKE
 
@@ -250,7 +250,7 @@ def main():
             if dispensers.STATE == 0 and dispenser_snake.activeDispenser:
                 dispensers.STATE = 1    
                     
-
+        ##############################################################################
         
         else:
             # Check dispenser timer and put in cooldown
@@ -281,37 +281,29 @@ def main():
                 dispenser_snake.activeDispenser = False
                 dispensers.num_snakes = 0
 
-        
+        # SCORE BOARD
+
         if reactive_snake.body[0] in reactive_snake.body[1:] or reactive_snake.body[0].x < 0 or reactive_snake.body[0].x >= board.boardSize or reactive_snake.body[0].y < 0 or reactive_snake.body[0].y >= board.boardSize:
             # snake hit itself or went off the edges
             print("\n REACTIVE SNAKE LOST !\n")
-            print("----------------------------------------------------------")
-            print("----------------------- SCORE BOARD ----------------------")
-            print("----------------------------------------------------------\n")
-            print("---------------------- REACTIVE SNAKE --------------------")
-            print("Global Score: ", reactive_snake.globalScore)
-            print("Snake Size: ", reactive_snake.size)
-            print("Apples: ", reactive_snake.apples, " x2 points")
-            print("Bananas: ", reactive_snake.bananas, " x3 points")
-            print("Strawberries: ", reactive_snake.strawberries, " x5 points")
-            print("Mushrooms: ", reactive_snake.mushrooms, "x(-1) points")
-            print("Ice: ", reactive_snake.ices)
-            print("Dispenser: ", reactive_snake.dispenser)
-            print("---------------------- DISPENSER SNAKE --------------------")
-            print("Global Score: ", dispenser_snake.globalScore)
-            print("Snake Size: ", dispenser_snake.size)
-            print("Apples: ", dispenser_snake.apples, " x2 points")
-            print("Bananas: ", dispenser_snake.bananas, " x3 points")
-            print("Strawberries: ", dispenser_snake.strawberries, " x5 points")
-            print("Mushrooms: ", dispenser_snake.mushrooms, "x(-1) points")
-            print("Ice: ", dispenser_snake.ices)
-            print("Dispenser: ", dispenser_snake.dispenser)
-            print("----------------------------------------------------------")
-            running = False
-        
+            score = True
+
         if dispenser_snake.body[0] in dispenser_snake.body[1:] or dispenser_snake.body[0].x < 0 or dispenser_snake.body[0].x >= board.boardSize or dispenser_snake.body[0].y < 0 or dispenser_snake.body[0].y >= board.boardSize:
             # snake hit itself or went off the edges
             print("\n DISPENSER SNAKE LOST !\n")
+            score = True
+        
+        if reactive_snake.size == 50 or reactive_snake.globalScore >= 150:
+            # snake achieved the maximum size or points and WON!
+            print("\n REACTIVE SNAKE WINS !\n")
+            score = True
+        
+        if dispenser_snake.size == 50 or dispenser_snake.globalScore == 150:
+            # snake achieved the maximum size or points and WON!
+            print("\n DISPENSER SNAKE WINS !\n")
+            score = True
+
+        if score:
             print("----------------------------------------------------------")
             print("----------------------- SCORE BOARD ----------------------")
             print("----------------------------------------------------------\n")
@@ -335,23 +327,8 @@ def main():
             print("Dispenser: ", dispenser_snake.dispenser)
             print("----------------------------------------------------------")
             running = False
-
-        '''elif reactive_snake.size == 40 or reactive_snake.globalScore >= 100:
-            # snake achieved the maximum size or points and WON!
-            print("\n YOU WIN !\n")
-            print("----------------------------------------------------------")
-            print("----------------------- SCORE BOARD ----------------------")
-            print("----------------------------------------------------------")
-            print("Global Score: ", reactive_snake.globalScore)
-            print("Snake Size: ", reactive_snake.size)
-            print("Apples: ", reactive_snake.apples, " x2 points")
-            print("Bananas: ", reactive_snake.bananas, " x3 points")
-            print("Strawberries: ", reactive_snake.strawberries, " x5 points")
-            print("Mushrooms: ", reactive_snake.mushrooms, "x(-1) points")
-            print("Ice: ", reactive_snake.ices)
-            print("Dispenser: ", reactive_snake.dispenser)
-            print("----------------------------------------------------------")
-            running = False'''
+            
+        #######################################################################
 
         screen.fill("lemonchiffon1")
         fruits.drawFruits(screen)
