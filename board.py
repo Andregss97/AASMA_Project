@@ -1,7 +1,6 @@
 import pygame as p
 from pygame import Vector2
 from random import randrange
-import numpy as np
 
 WIDTH = HEIGHT = 900 # 600
 DIMENSION = 30 # 20

@@ -1,6 +1,4 @@
 import pygame as p
-from pygame import Vector2
-from random import randrange
 from board import *
 
 apple = p.image.load('snake_imgs/apple.svg')

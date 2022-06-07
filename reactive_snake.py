@@ -1,7 +1,4 @@
-from random import random
-from xmlrpc.client import MAXINT, MININT
 import pygame as p
-import numpy as np
 from pygame import Vector2
 from board import *
 from Node import *
@@ -15,8 +12,6 @@ class Reactive_Snake:
         self.direction = p.Vector2(1, 0)
         self.objective = p.Vector2
         self.size = len(self.body)
-        self.activeDispenser = False
-        # TODO: rearrange which snake goes where in the start
         self.globalScore = 0
 
         # F R U I T S
@@ -30,8 +25,8 @@ class Reactive_Snake:
 
         # D I S P E N S E R
         self.dispenser = 0
-        # shared_dispenser = 0
-        # TODO: Criar várias cobras e identificar estes eventos
+        self.activeDispenser = False
+
 
     def drawSnake (self, screen):
         for cell in self.body:

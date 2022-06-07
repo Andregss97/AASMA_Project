@@ -1,5 +1,4 @@
 import pygame as p
-from pygame import Vector2
 import sys
 from board import *
 from reactive_snake import *
@@ -24,7 +23,6 @@ def main():
     snakes = []
     running = True
     score = False
-    food_spawned = False
 
     ## Generate all items
     board = Board()
@@ -90,17 +88,6 @@ def main():
                 reactive_snake.moveSnake()
                 dispenser_snake.moveSnake()
                 
-            '''
-            if e.type == p.KEYDOWN:
-                if e.key == p.K_UP and reactive_snake.direction != Vector2(0,1):
-                    reactive_snake.direction = Vector2(0,-1)
-                if e.key == p.K_DOWN and reactive_snake.direction != Vector2(0,-1):
-                    reactive_snake.direction = Vector2(0,1)
-                if e.key == p.K_LEFT and reactive_snake.direction != Vector2(1,0):
-                    reactive_snake.direction = Vector2(-1,0)
-                if e.key == p.K_RIGHT and reactive_snake.direction != Vector2(-1,0):
-                    reactive_snake.direction = Vector2(1,0)
-            '''
 
         # REACTIVE SNAKE
 
@@ -335,7 +322,6 @@ def main():
         traps.drawTraps(screen)
         dispensers.drawDispensers(screen)
         dispensers.updateDispenserState(screen)
-        #TODO: Implement the cooldown factor on the dispensers
         reactive_snake.drawSnake(screen)
         dispenser_snake.drawSnake(screen)
         board.drawLines(screen)
