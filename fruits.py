@@ -5,9 +5,9 @@ apple = p.image.load('snake_imgs/apple.svg')
 banana = p.image.load('snake_imgs/banana.svg')
 strawberry = p.image.load('snake_imgs/strawberry.svg')
 
-NMBR_START_APPLES = 20
-NMBR_START_BANANAS = 10
-NMBR_START_STRAWBERRIES = 3
+NMBR_START_APPLES = 1
+NMBR_START_BANANAS = 1
+NMBR_START_STRAWBERRIES = 1
 
 NMBR_DISPENSER_APPLES = 4
 NMBR_DISPENSER_BANANAS = 2

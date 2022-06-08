@@ -1,9 +1,9 @@
+import random
 import pygame as p
 import numpy as np
 from pygame import Vector2
 from board import *
-import traps
-import fruits
+from Node import *
 
 VISION_RANGE = 5
 
@@ -25,6 +25,7 @@ class Deliberative_Snake:
         
         self.body = [Vector2(7,10), Vector2(6,10), Vector2(5,10)]
         self.direction = p.Vector2(1, 0)
+        self.exploreTO = []
         self.size = len(self.body)
         # TODO: rearrange which snake goes where in the start
         self.globalScore = 0
@@ -46,6 +47,7 @@ class Deliberative_Snake:
         # D I S P E N S E R
         self.dispenser = 0
         self.dispensersScanned = []
+        self.activeDispenser = False
         # shared_dispenser = 0
         # TODO: Criar várias cobras e identificar estes eventos
 
@@ -67,19 +69,16 @@ class Deliberative_Snake:
         body_copy.append(body_copy[-1])
         self.body = body_copy[:]
 
-    def manhattanDistance (self, start: Vector2, end: Vector2):
-        return np.abs(end.x - start.x) + np.abs(end.y - start.y) 
+    def euclidianDistance (self, start: Vector2, end: Vector2):
+        return np.sqrt(np.add(np.square(int(np.subtract(end.x,start.x))), np.square(int(np.subtract(end.y, start.y)))))
 
     def scanArea(self, screen, fruits, traps, dispensers):
-        self.circleBres(self.body[0].x, self.body[0].y)
+        self.visibleArea = []
         for i in range (DIMENSION):
             for j in range (DIMENSION):
                 pos = p.Vector2(i,j)
-                if np.round(self.manhattanDistance(self.body[0], pos), 0) <= VISION_RANGE and pos not in self.body and pos not in self.visibleArea:
+                if np.round(self.euclidianDistance(self.body[0], pos), 0) <= VISION_RANGE and pos not in self.body and pos not in self.visibleArea:
                     self.visibleArea.append(pos)
-        self.paintVision(screen, fruits, traps, dispensers)
-
-    def paintVision(self, screen, fruits, traps, dispensers):
         for cell in self.visibleArea:
             if cell in fruits.apples and cell not in self.applesScanned:
                 self.applesScanned.append(cell)
@@ -93,33 +92,8 @@ class Deliberative_Snake:
                 self.icesScanned.append(cell)
             if cell in dispensers.dispensers and cell not in self.dispensersScanned:
                 self.dispensersScanned.append(cell)
-
-            p.draw.rect(screen, self.scanColor, p.Rect(cell.x * SQUARE_SIZE, cell.y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
-
-    def drawCircle(self, xc: int, yc: int, x: int, y: int):
-        self.visibleArea.append(p.Vector2(xc+x, yc+y))
-        self.visibleArea.append(p.Vector2(xc-x, yc+y))
-        self.visibleArea.append(p.Vector2(xc+x, yc-y))
-        self.visibleArea.append(p.Vector2(xc-x, yc-y))
-        self.visibleArea.append(p.Vector2(xc+y, yc+x))
-        self.visibleArea.append(p.Vector2(xc-y, yc+x))
-        self.visibleArea.append(p.Vector2(xc+y, yc-x))
-        self.visibleArea.append(p.Vector2(xc-y, yc-x))
-
-    def circleBres(self, xc: int, yc: int):
-        self.visibleArea = []
-        x = 0
-        y = VISION_RANGE
-        d = 3 - 2 * VISION_RANGE
-        self.drawCircle(xc, yc, x, y)
-        while y >= x:
-            x += 1
-            if (d > 0):
-                y -= 1
-                d = d + 4 * (x - y) + 10
-            else:
-                d = d + 4 * x + 6;
-            self.drawCircle(xc, yc, x, y)
+            # draw observable cells
+            p.draw.rect(screen, self.scanColor, p.Rect(cell.x * SQUARE_SIZE, cell.y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))        
     
     def drawFruits(self, screen):
 
@@ -151,3 +125,94 @@ class Deliberative_Snake:
                 if dispensers.STATE == 2:
                     dispensers.dispenser_color = p.Color("hotpink1")
                     screen.blit(cooldown, (self.dispensersScanned[index].x * SQUARE_SIZE, self.dispensersScanned[index].y * SQUARE_SIZE))
+
+    def search(self, start, goals, obstacles, actions):
+        # print("START " + str(start))
+        # print("GOALS " + str(goals))
+        open = []
+        closed = []
+        path = []
+
+        start_node = Node(start, None)
+        goal_nodes = [Node(g, None) for g in goals]
+
+        open.append(start_node)
+
+        while len(open) > 0:
+            open.sort()
+            node = open.pop(0)
+            closed.append(node)
+            if node in goal_nodes:
+                while node != start_node:
+                    path.append(node.state)
+                    node = node.parent
+                path.append(node.state)
+                return path[::-1]
+
+            children = self.getChildren(node, obstacles, actions)
+            for child in children:
+                if child not in closed and self.lowest_f(open, child):
+                    open.append(child)
+
+        return path[::-1]
+
+    def lowest_f(self, open, child):
+        for node in open:
+            if (node == child and node.f <= child.f):
+                return False
+        return True
+
+    def getChildren(self, parent, obstacles, actions):
+        children = []
+        for a in actions:
+            neighbour_pos = parent.state + a
+            if neighbour_pos not in obstacles:
+                newChild = Node(neighbour_pos, parent)
+                newChild.g = parent.g + 1
+                newChild.h = Vector2.distance_squared_to(parent.state, neighbour_pos)
+                children.append(newChild)
+        return children
+
+
+    def action(self, dispensers, snakes):
+        actions = [Vector2(0,1), Vector2(0,-1), Vector2(1,0), Vector2(-1,0)]
+        obstacles = []
+        obstacles.extend(self.mushroomsScanned)
+        if self.body[0] in self.exploreTO:
+            self.exploreTO = []
+        for s in snakes:
+            obstacles.extend(s.body)
+        if not self.activeDispenser and dispensers.STATE != 2:
+            goals = self.dispensersScanned
+        else:
+            goals = self.applesScanned + self.bananasScanned + self.strawberriesScanned + self.icesScanned
+        if goals == []:
+            if self.exploreTO == []:
+                while True:
+                    rand_X = randrange(DIMENSION)
+                    rand_Y = randrange(DIMENSION)
+                    new_pos = Vector2(rand_X, rand_Y)
+                    if new_pos not in self.body:
+                        goals = [new_pos]
+                        self.exploreTO = [new_pos]
+                        break
+            else:
+                goals = self.exploreTO
+        else:
+            self.exploreTO = []
+        
+        path = self.search(self.body[0], goals, obstacles, actions)
+        if self.exploreTO != []:
+            print("\n * * EXPLORING * * \n")
+        else:
+            print("\n * * * \n")
+
+        print(path)
+
+        if len(path) < 2: # can't find/end of path, pick any legal move
+            for a in actions:
+                if self.body[0] + a not in obstacles:
+                    self.direction = a
+        else:
+            self.direction = path[1] - path[0]
+            # print("DIR: " + str(self.direction))

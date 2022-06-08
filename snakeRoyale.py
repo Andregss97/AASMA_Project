@@ -71,6 +71,7 @@ def main():
                 p.quit()
                 sys.exit()
             if e.type == SCREEN_UPDATE:
+                deliberative_snake.action(dispensers, [deliberative_snake])
                 deliberative_snake.moveSnake()
             if e.type == p.KEYDOWN:
                 if e.key == p.K_UP and deliberative_snake.direction != Vector2(0,1):
@@ -82,10 +83,10 @@ def main():
                 if e.key == p.K_RIGHT and deliberative_snake.direction != Vector2(-1,0):
                     deliberative_snake.direction = Vector2(1,0)
                 if e.key == p.K_d:
-                    deliberative_snake_screen = True
-            if e.type == p.KEYUP:
-                if e.key == p.K_d:
-                    deliberative_snake_screen = False
+                    if deliberative_snake_screen :
+                        deliberative_snake_screen = False
+                    else:
+                        deliberative_snake_screen = True
                 
         if deliberative_snake.body[0] in fruits.apples:
             # snake caught an apple
@@ -153,6 +154,7 @@ def main():
             for dispenserPos in dispensers.dispensers:
                 if deliberative_snake.body[0] == dispenserPos and dispensers.STATE == 0:
                     dispensers.STATE = 1
+                    deliberative_snake.activeDispenser = True
                     dispenserTimer = p.time.get_ticks()
         
         else:
@@ -161,11 +163,13 @@ def main():
                 fruits.definePositionsDispenser(board)
                 dispensers.STATE = 2
                 deliberative_snake.dispenser += 1
+                deliberative_snake.activeDispenser = True
                 # TODO: Assuming there is only one snake on the board // Add if to check which snakes have the propertie REWARD at true, divide the points and distribute to each one
                 deliberative_snake.globalScore += 8
                 dispenserCooldown = p.time.get_ticks()
             
-            if dispensers.STATE == 2 and p.time.get_ticks() - dispenserCooldown >= 5000:
+            if dispensers.STATE == 2 and p.time.get_ticks() - dispenserCooldown >= 15000:
+                deliberative_snake.activeDispenser = False
                 dispensers.STATE = 0
 
         
