@@ -83,11 +83,9 @@ def main():
                     deliberative_snake.direction = Vector2(1,0)
                 if e.key == p.K_d:
                     deliberative_snake_screen = True
-                    print(deliberative_snake_screen)
             if e.type == p.KEYUP:
                 if e.key == p.K_d:
                     deliberative_snake_screen = False
-                    print(deliberative_snake_screen)
                 
         if deliberative_snake.body[0] in fruits.apples:
             # snake caught an apple

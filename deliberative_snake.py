@@ -122,7 +122,6 @@ class Deliberative_Snake:
             self.drawCircle(xc, yc, x, y)
     
     def drawFruits(self, screen):
-        print(self.strawberriesScanned)
 
         for apple_pos in self.applesScanned:
             screen.blit(apple, (apple_pos.x * SQUARE_SIZE, apple_pos.y * SQUARE_SIZE))
