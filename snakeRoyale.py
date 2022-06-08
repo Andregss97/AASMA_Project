@@ -22,7 +22,7 @@ def main():
     clock = p.time.Clock()
     screen.fill(p.Color("black"))
     screen_color = "lemonchiffon1"
-    deliberative_screen_color = "grey"
+    deliberative_screen_color = "gray12"
     running = True
     deliberative_snake_screen = False
 
