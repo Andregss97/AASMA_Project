@@ -2,8 +2,6 @@ import pygame as p
 from pygame import Vector2
 from board import *
 
-
-
 cooldown = p.image.load('snake_imgs/cooldown.svg')
 
 class Dispensers:

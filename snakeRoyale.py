@@ -22,7 +22,9 @@ def main():
     clock = p.time.Clock()
     screen.fill(p.Color("black"))
     screen_color = "lemonchiffon1"
+    deliberative_screen_color = "grey"
     running = True
+    deliberative_snake_screen = False
 
     ## Generate all items
     board = Board()
@@ -41,7 +43,7 @@ def main():
     
     screen.fill(screen_color)
     deliberative_snake.drawSnake(screen)
-    deliberative_snake.scanArea(screen)
+    deliberative_snake.scanArea(screen, fruits, traps, dispensers)
     fruits.drawFruits(screen)
     traps.drawTraps(screen)
     dispensers.drawDispensers(screen)
@@ -69,7 +71,6 @@ def main():
                 p.quit()
                 sys.exit()
             if e.type == SCREEN_UPDATE:
-                pass
                 deliberative_snake.moveSnake()
             if e.type == p.KEYDOWN:
                 if e.key == p.K_UP and deliberative_snake.direction != Vector2(0,1):
@@ -80,11 +81,20 @@ def main():
                     deliberative_snake.direction = Vector2(-1,0)
                 if e.key == p.K_RIGHT and deliberative_snake.direction != Vector2(-1,0):
                     deliberative_snake.direction = Vector2(1,0)
+                if e.key == p.K_d:
+                    deliberative_snake_screen = True
+                    print(deliberative_snake_screen)
+            if e.type == p.KEYUP:
+                if e.key == p.K_d:
+                    deliberative_snake_screen = False
+                    print(deliberative_snake_screen)
+                
         if deliberative_snake.body[0] in fruits.apples:
             # snake caught an apple
             # print("APPLE!!!")
             # delete APPLE from the board and fruits class
             fruits.apples.remove(deliberative_snake.body[0])
+            deliberative_snake.applesScanned.remove(deliberative_snake.body[0])
             board.busy_cells.remove(deliberative_snake.body[0])
             # increase snake size
             deliberative_snake.increaseSize()
@@ -97,6 +107,7 @@ def main():
             # print("BANANA!!!")
             # delete APPLE from the board and fruits class
             fruits.bananas.remove(deliberative_snake.body[0])
+            deliberative_snake.bananasScanned.remove(deliberative_snake.body[0])
             board.busy_cells.remove(deliberative_snake.body[0])
             # increase snake size
             deliberative_snake.increaseSize()
@@ -109,6 +120,7 @@ def main():
             # print("STRAWBERRY!!!")
             # delete APPLE from the board and fruits class
             fruits.strawberries.remove(deliberative_snake.body[0])
+            deliberative_snake.strawberriesScanned.remove(deliberative_snake.body[0])
             board.busy_cells.remove(deliberative_snake.body[0])
             # increase snake size
             deliberative_snake.increaseSize()
@@ -121,6 +133,7 @@ def main():
             # print("MUSHROOM >__<")
             # delete APPLE from the board and fruits class
             traps.mushrooms.remove(deliberative_snake.body[0])
+            deliberative_snake.mushroomsScanned.remove(deliberative_snake.body[0])
             board.busy_cells.remove(deliberative_snake.body[0])
             # add points
             deliberative_snake.mushrooms += 1
@@ -132,6 +145,7 @@ def main():
             # print("ICE *__*")
             # delete APPLE from the board and fruits class
             traps.ices.remove(deliberative_snake.body[0])
+            deliberative_snake.icesScanned.remove(deliberative_snake.body[0])
             board.busy_cells.remove(deliberative_snake.body[0])
             # add points
             deliberative_snake.ices += 1
@@ -191,15 +205,25 @@ def main():
             print("----------------------------------------------------------")
             running = False
 
-        screen.fill("lemonchiffon1")
-        deliberative_snake.scanArea(screen)
-        fruits.drawFruits(screen)
-        traps.drawTraps(screen)
-        dispensers.drawDispensers(screen)
-        dispensers.updateDispenserState(screen)
-        #TODO: Implement the cooldown factor on the dispensers
-        deliberative_snake.drawSnake(screen)
-        board.drawLines(screen)
+        if deliberative_snake_screen:
+            screen.fill(deliberative_screen_color)
+            deliberative_snake.scanArea(screen, fruits, traps, dispensers)
+            deliberative_snake.drawFruits(screen)
+            deliberative_snake.drawTraps(screen)
+            deliberative_snake.drawDispensers(screen, dispensers)
+            deliberative_snake.updateDispenserState(screen, dispensers)
+            deliberative_snake.drawSnake(screen)
+            board.drawLines(screen)
+            pass
+        else:
+            screen.fill(screen_color)
+            deliberative_snake.scanArea(screen, fruits, traps, dispensers)
+            fruits.drawFruits(screen)
+            traps.drawTraps(screen)
+            dispensers.drawDispensers(screen)
+            dispensers.updateDispenserState(screen)
+            deliberative_snake.drawSnake(screen)
+            board.drawLines(screen)
         p.display.update()
         clock.tick(MAX_FPS)
 
