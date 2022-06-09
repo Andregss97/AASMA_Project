@@ -98,21 +98,21 @@ class Deliberative_Snake:
     def drawFruits(self, screen):
 
         for apple_pos in self.applesScanned:
-            screen.blit(apple, (apple_pos.x * SQUARE_SIZE, apple_pos.y * SQUARE_SIZE))
+            screen.blit(apple.convert_alpha(), (apple_pos.x * SQUARE_SIZE, apple_pos.y * SQUARE_SIZE))
 
         for banana_pos in self.bananasScanned:
-            screen.blit(banana, (banana_pos.x * SQUARE_SIZE, banana_pos.y * SQUARE_SIZE))
+            screen.blit(banana.convert_alpha(), (banana_pos.x * SQUARE_SIZE, banana_pos.y * SQUARE_SIZE))
 
         for strawberry_pos in self.strawberriesScanned:
-            screen.blit(strawberry, (strawberry_pos.x * SQUARE_SIZE, strawberry_pos.y * SQUARE_SIZE))
+            screen.blit(strawberry.convert_alpha(), (strawberry_pos.x * SQUARE_SIZE, strawberry_pos.y * SQUARE_SIZE))
 
     def drawTraps(self, screen):
 
         for mushroom_pos in self.mushroomsScanned:
-            screen.blit(mushroom, (mushroom_pos.x * SQUARE_SIZE, mushroom_pos.y * SQUARE_SIZE))
+            screen.blit(mushroom.convert_alpha(), (mushroom_pos.x * SQUARE_SIZE, mushroom_pos.y * SQUARE_SIZE))
 
         for ice_pos in self.icesScanned:
-            screen.blit(ice, (ice_pos.x * SQUARE_SIZE, ice_pos.y * SQUARE_SIZE))
+            screen.blit(ice.convert_alpha(), (ice_pos.x * SQUARE_SIZE, ice_pos.y * SQUARE_SIZE))
 
     def drawDispensers(self, screen, dispensers):
         for dispenser in self.dispensersScanned:
@@ -124,7 +124,7 @@ class Deliberative_Snake:
                     dispensers.dispenser_color = p.Color("chartreuse3")
                 if dispensers.STATE == 2:
                     dispensers.dispenser_color = p.Color("hotpink1")
-                    screen.blit(cooldown, (self.dispensersScanned[index].x * SQUARE_SIZE, self.dispensersScanned[index].y * SQUARE_SIZE))
+                    screen.blit(cooldown.convert_alpha(), (self.dispensersScanned[index].x * SQUARE_SIZE, self.dispensersScanned[index].y * SQUARE_SIZE))
 
     def search(self, start, goals, obstacles, actions):
         # print("START " + str(start))

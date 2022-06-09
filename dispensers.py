@@ -22,4 +22,4 @@ class Dispensers:
                     self.dispenser_color = p.Color("chartreuse3")
                 if self.STATE == 2:
                     self.dispenser_color = p.Color("hotpink1")
-                    screen.blit(cooldown, (self.dispensers[index].x * SQUARE_SIZE, self.dispensers[index].y * SQUARE_SIZE))
+                    screen.blit(cooldown.convert_alpha(), (self.dispensers[index].x * SQUARE_SIZE, self.dispensers[index].y * SQUARE_SIZE))

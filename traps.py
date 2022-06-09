@@ -24,7 +24,7 @@ class Traps:
     def drawTraps(self, screen):
 
         for mushroom_pos in self.mushrooms:
-            screen.blit(mushroom, (mushroom_pos.x * SQUARE_SIZE, mushroom_pos.y * SQUARE_SIZE))
+            screen.blit(mushroom.convert_alpha(), (mushroom_pos.x * SQUARE_SIZE, mushroom_pos.y * SQUARE_SIZE))
 
         for ice_pos in self.ices:
-            screen.blit(ice, (ice_pos.x * SQUARE_SIZE, ice_pos.y * SQUARE_SIZE))
+            screen.blit(ice.convert_alpha(), (ice_pos.x * SQUARE_SIZE, ice_pos.y * SQUARE_SIZE))

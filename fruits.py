@@ -36,11 +36,11 @@ class Fruits:
     def drawFruits(self, screen):
 
         for apple_pos in self.apples:
-            screen.blit(apple, (apple_pos.x * SQUARE_SIZE, apple_pos.y * SQUARE_SIZE))
+            screen.blit(apple.convert_alpha(), (apple_pos.x * SQUARE_SIZE, apple_pos.y * SQUARE_SIZE))
 
         for banana_pos in self.bananas:
-            screen.blit(banana, (banana_pos.x * SQUARE_SIZE, banana_pos.y * SQUARE_SIZE))
+            screen.blit(banana.convert_alpha(), (banana_pos.x * SQUARE_SIZE, banana_pos.y * SQUARE_SIZE))
 
         for strawberry_pos in self.strawberries:
-            screen.blit(strawberry, (strawberry_pos.x * SQUARE_SIZE, strawberry_pos.y * SQUARE_SIZE))
+            screen.blit(strawberry.convert_alpha(), (strawberry_pos.x * SQUARE_SIZE, strawberry_pos.y * SQUARE_SIZE))
         
