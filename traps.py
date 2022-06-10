@@ -6,8 +6,8 @@ from board import *
 mushroom = p.image.load('snake_imgs/mushroom.svg')
 ice = p.image.load('snake_imgs/ice.svg')
 
-NMBR_START_MUSHROOMS = 0
-NMBR_START_ICES = 0
+NMBR_START_MUSHROOMS = 3
+NMBR_START_ICES = 2
 
 class Traps:
 

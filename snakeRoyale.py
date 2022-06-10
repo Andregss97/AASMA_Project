@@ -10,7 +10,7 @@ from dispensers import *
 from fruits import *
 from traps import *
 
-MAX_FPS = 10
+MAX_FPS = 5
 
 '''
 Main function. Handles initializing application and updating graphics
@@ -53,6 +53,8 @@ def main():
     p.time.set_timer(SCREEN_UPDATE, 300)
 
     while running:
+        deliberative_snake.action(dispensers, [deliberative_snake])
+        deliberative_snake.moveSnake()
         for e in p.event.get():
             if e.type == p.QUIT:
                 print("\n YOU GAVE UP !\n")
@@ -70,9 +72,7 @@ def main():
                 print("----------------------------------------------------------")
                 p.quit()
                 sys.exit()
-            if e.type == SCREEN_UPDATE:
-                deliberative_snake.action(dispensers, [deliberative_snake])
-                deliberative_snake.moveSnake()
+                
             if e.type == p.KEYDOWN:
                 if e.key == p.K_UP and deliberative_snake.direction != Vector2(0,1):
                     deliberative_snake.direction = Vector2(0,-1)
@@ -215,6 +215,8 @@ def main():
             deliberative_snake.drawDispensers(screen, dispensers)
             deliberative_snake.updateDispenserState(screen, dispensers)
             deliberative_snake.drawSnake(screen)
+            if deliberative_snake.exploreTO != [] and deliberative_snake.exploreTO[0] not in deliberative_snake.visibleArea and deliberative_snake.exploreTO[0] not in deliberative_snake.body:
+                p.draw.rect(screen, "gray23", p.Rect(deliberative_snake.exploreTO[0].x * SQUARE_SIZE, deliberative_snake.exploreTO[0].y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE), border_radius=1)
             board.drawLines(screen)
             pass
         else:

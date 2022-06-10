@@ -93,7 +93,8 @@ class Deliberative_Snake:
             if cell in dispensers.dispensers and cell not in self.dispensersScanned:
                 self.dispensersScanned.append(cell)
             # draw observable cells
-            p.draw.rect(screen, self.scanColor, p.Rect(cell.x * SQUARE_SIZE, cell.y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))        
+            p.draw.rect(screen, self.scanColor, p.Rect(cell.x * SQUARE_SIZE, cell.y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+
     
     def drawFruits(self, screen):
 
