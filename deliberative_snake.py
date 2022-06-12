@@ -172,10 +172,9 @@ class Deliberative_Snake:
         children = []
         for a in actions:
             neighbour_pos = parent.state + a
-            if neighbour_pos not in obstacles:
+            if neighbour_pos not in obstacles and neighbour_pos.x >= 0 and neighbour_pos.x < DIMENSION and neighbour_pos.y >= 0 and neighbour_pos.y < DIMENSION:
                 newChild = Node(neighbour_pos, parent)
                 newChild.g = parent.g + 1
-                # newChild.h = Vector2.distance_squared_to(parent.state, neighbour_pos)
                 newChild.h = self.manhattanDistance(self.body[0], parent.state) + self.findReward(parent.state, dispensers)
                 children.append(newChild)
         return children
