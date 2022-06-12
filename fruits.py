@@ -5,13 +5,13 @@ apple = p.image.load('snake_imgs/apple.svg')
 banana = p.image.load('snake_imgs/banana.svg')
 strawberry = p.image.load('snake_imgs/strawberry.svg')
 
-NMBR_START_APPLES = 8
-NMBR_START_BANANAS = 4
-NMBR_START_STRAWBERRIES = 2
+NMBR_START_APPLES = 5
+NMBR_START_BANANAS = 0
+NMBR_START_STRAWBERRIES = 40
 
-NMBR_DISPENSER_APPLES = 4
-NMBR_DISPENSER_BANANAS = 2
-NMBR_DISPENSER_STRAWBERRIES = 1
+NMBR_DISPENSER_APPLES = 5
+NMBR_DISPENSER_BANANAS = 0
+NMBR_DISPENSER_STRAWBERRIES = 40
 
 class Fruits:
 

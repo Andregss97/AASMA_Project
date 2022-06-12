@@ -22,6 +22,7 @@ class Deliberative_Snake:
         self.color = "olivedrab"
         self.scanColor = "lemonchiffon3"
         self.visibleArea = []
+        self.heuristics = []
         
         self.body = [Vector2(7,10), Vector2(6,10), Vector2(5,10)]
         self.direction = p.Vector2(1, 0)
@@ -71,6 +72,9 @@ class Deliberative_Snake:
 
     def euclidianDistance (self, start: Vector2, end: Vector2):
         return np.sqrt(np.add(np.square(int(np.subtract(end.x,start.x))), np.square(int(np.subtract(end.y, start.y)))))
+
+    def manhattanDistance (self, start: Vector2, end: Vector2):
+        return np.abs(end.x - start.x) + np.abs(end.y - start.y)
 
     def scanArea(self, screen, fruits, traps, dispensers):
         self.visibleArea = []
@@ -127,7 +131,7 @@ class Deliberative_Snake:
                     dispensers.dispenser_color = p.Color("hotpink1")
                     screen.blit(cooldown.convert_alpha(), (self.dispensersScanned[index].x * SQUARE_SIZE, self.dispensersScanned[index].y * SQUARE_SIZE))
 
-    def search(self, start, goals, obstacles, actions):
+    def search(self, start, goals, obstacles, actions, dispensers):
         # print("START " + str(start))
         # print("GOALS " + str(goals))
         open = []
@@ -136,6 +140,7 @@ class Deliberative_Snake:
 
         start_node = Node(start, None)
         goal_nodes = [Node(g, None) for g in goals]
+        print(goal_nodes[0].state)
 
         open.append(start_node)
 
@@ -150,7 +155,7 @@ class Deliberative_Snake:
                 path.append(node.state)
                 return path[::-1]
 
-            children = self.getChildren(node, obstacles, actions)
+            children = self.getChildren(node, obstacles, actions, dispensers)
             for child in children:
                 if child not in closed and self.lowest_f(open, child):
                     open.append(child)
@@ -163,14 +168,15 @@ class Deliberative_Snake:
                 return False
         return True
 
-    def getChildren(self, parent, obstacles, actions):
+    def getChildren(self, parent, obstacles, actions, dispensers):
         children = []
         for a in actions:
             neighbour_pos = parent.state + a
             if neighbour_pos not in obstacles:
                 newChild = Node(neighbour_pos, parent)
                 newChild.g = parent.g + 1
-                newChild.h = Vector2.distance_squared_to(parent.state, neighbour_pos)
+                # newChild.h = Vector2.distance_squared_to(parent.state, neighbour_pos)
+                newChild.h = self.manhattanDistance(self.body[0], parent.state) + self.findReward(parent.state, dispensers)
                 children.append(newChild)
         return children
 
@@ -183,17 +189,19 @@ class Deliberative_Snake:
             self.exploreTO = []
         for s in snakes:
             obstacles.extend(s.body)
+        
         if not self.activeDispenser and dispensers.STATE != 2:
-            goals = self.dispensersScanned
+            goals = self.strawberriesScanned + self.bananasScanned + self.applesScanned + self.dispensersScanned + self.icesScanned
         else:
-            goals = self.applesScanned + self.bananasScanned + self.strawberriesScanned + self.icesScanned
+            goals = self.strawberriesScanned + self.bananasScanned + self.applesScanned + self.icesScanned
+
         if goals == []:
             if self.exploreTO == []:
                 while True:
                     rand_X = randrange(DIMENSION)
                     rand_Y = randrange(DIMENSION)
                     new_pos = Vector2(rand_X, rand_Y)
-                    if new_pos not in self.body:
+                    if new_pos not in self.body and new_pos not in self.visibleArea and self.manhattanDistance(self.body[0], new_pos) < 12:
                         goals = [new_pos]
                         self.exploreTO = [new_pos]
                         break
@@ -202,13 +210,12 @@ class Deliberative_Snake:
         else:
             self.exploreTO = []
         
-        path = self.search(self.body[0], goals, obstacles, actions)
+        path = self.search(self.body[0], goals, obstacles, actions, dispensers)
         if self.exploreTO != []:
             print("\n * * EXPLORING * * \n")
         else:
             print("\n * * * \n")
 
-        print(path)
 
         if len(path) < 2: # can't find/end of path, pick any legal move
             for a in actions:
@@ -217,3 +224,29 @@ class Deliberative_Snake:
         else:
             self.direction = path[1] - path[0]
             # print("DIR: " + str(self.direction))
+
+    '''
+    def calculateHeuristics(self, goals: list, dispensers):
+        self.heuristics = [0] * len(goals)
+        for i in range(len(goals)):
+            goal =  goals[i]
+            self.heuristics[i] = self.manhattanDistance(self.body[0], goal) + (10 - self.findReward(goal))
+    '''
+
+    def findReward(self, goal: Vector2, dispensers):
+        if goal in self.applesScanned:
+            return 2
+        elif goal in self.bananasScanned:
+            return 3
+        elif goal in self.strawberriesScanned:
+            return 5
+        elif goal in self.dispensersScanned and not self.activeDispenser and dispensers.STATE != 2:
+            if dispensers.STATE == 0:
+                return 8
+            elif dispensers.STATE == 1:
+                return 4
+        elif goal in self.icesScanned:
+            return 0
+        elif goal in self.mushroomsScanned:
+            return -1
+        return -10
