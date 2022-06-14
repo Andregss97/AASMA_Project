@@ -68,6 +68,7 @@ class Deliberative_Snake:
         body_copy = self.body[:]
         body_copy.append(body_copy[-1])
         self.body = body_copy[:]
+        self.size = len(self.body)
 
     def euclidianDistance (self, start: Vector2, end: Vector2):
         return np.sqrt(np.add(np.square(int(np.subtract(end.x,start.x))), np.square(int(np.subtract(end.y, start.y)))))
