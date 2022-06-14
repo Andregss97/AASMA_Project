@@ -11,6 +11,26 @@ from traps import *
 
 MAX_FPS = 3
 
+apple_icon = p.image.load('snake_imgs/apple_icon.svg')
+banana_icon = p.image.load('snake_imgs/banana_icon.svg')
+strawberry_icon = p.image.load('snake_imgs/strawberry_icon.svg')
+
+mushroom_icon = p.image.load('snake_imgs/mushroom_icon.svg')
+ice_icon = p.image.load('snake_imgs/ice_icon.svg')
+
+dispenser_icon = p.image.load('snake_imgs/dispenser.svg')
+dispenser_icon = p.transform.scale(dispenser_icon, (20, 20))
+
+reactive_snake_icon = p.image.load('snake_imgs/reactive_snake.svg')
+deliberative_snake_icon = p.image.load('snake_imgs/deliberative_snake.svg')
+trap_snake_icon = p.image.load('snake_imgs/trap_snake.svg')
+dispenser_snake_icon = p.image.load('snake_imgs/dispenser_snake.svg')
+
+size_white = p.image.load('snake_imgs/size_w.svg')
+size_black = p.image.load('snake_imgs/size_b.svg')
+score_white = p.image.load('snake_imgs/score_w.svg')
+score_black = p.image.load('snake_imgs/score_b.svg')
+
 '''
 Main function. Handles initializing application and updating graphics
 '''
@@ -26,6 +46,7 @@ def main():
     deliberative_snake_screen = False
     snakes = []
     running = 1
+    stepCount = 0
     score = False
 
     ## Generate all items
@@ -38,12 +59,13 @@ def main():
 
     ## Create Snake
     # deliberative_snake : olivedrab,
-    # deliberative_snake : orange2,
+    # reactive_snake : orange2,
     # trap_snake : lightslategrey,
     # dispenser_snake : indianred
     deliberative_snake = Deliberative_Snake()
     reactive_snake = Reactive_Snake()
     dispenser_snake = Dispenser_Snake()
+    trap_snake = Trap_Snake()
     snakes.append(deliberative_snake)
     snakes.append(reactive_snake)
     snakes.append(dispenser_snake)
@@ -74,7 +96,6 @@ def main():
 
         dispenser_snake.action(fruits, dispensers, traps, snakes)
         dispenser_snake.moveSnake()
-
 
         for e in p.event.get():
             if e.type == p.QUIT:
@@ -121,7 +142,7 @@ def main():
                         deliberative_snake_screen = False
                     else:
                         deliberative_snake_screen = True
-        
+
         # DELIBERATIVE SNAKE
         if deliberative_snake.body[0] in fruits.apples:
             # snake caught an apple
@@ -467,6 +488,9 @@ def main():
             deliberative_snake.drawSnake(screen)
             reactive_snake.drawSnake(screen)
             dispenser_snake.drawSnake(screen)
+            drawScoreBoard(screen, deliberative_snake_screen, deliberative_snake, reactive_snake, trap_snake, dispenser_snake, stepCount)
+
+            stepCount += 1
 
             if deliberative_snake.exploreTO != [] and deliberative_snake.exploreTO[0] not in deliberative_snake.visibleArea and deliberative_snake.exploreTO[0] not in deliberative_snake.body:
                 p.draw.rect(screen, "red", p.Rect(deliberative_snake.exploreTO[0].x * SQUARE_SIZE, deliberative_snake.exploreTO[0].y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE), border_radius=1)
@@ -484,9 +508,194 @@ def main():
             reactive_snake.drawSnake(screen)
             dispenser_snake.drawSnake(screen)
 
+            drawScoreBoard(screen, deliberative_snake_screen, deliberative_snake, reactive_snake, trap_snake, dispenser_snake, stepCount)
+
+            stepCount += 1
+
             board.drawLines(screen)
         p.display.update()
         clock.tick(MAX_FPS)
+
+def drawScoreBoard(screen, flag: bool, deliberative_snake: Deliberative_Snake, reactive_snake: Reactive_Snake, trap_snake: Trap_Snake, dispenser_snake: Dispenser_Snake, stepCount: int):
+    ## Score Board
+    text = p.font.SysFont("monospace", 16)    
+    subtitle = p.font.SysFont("monospace", 20, True)
+    title = p.font.SysFont("monospace", 32, True)
+    basic_color = (0,0,0)
+    if flag:
+        basic_color = (255,255,255)
+        deliberative_snake_visionTxt = subtitle.render("Deliberative Snake Vision  ON", 1, basic_color)
+        screen.blit(deliberative_snake_visionTxt, (32 * SQUARE_SIZE, 0.5 * SQUARE_SIZE))
+        stepsTxt = text.render("Steps {0}".format(stepCount), 1, basic_color)
+        screen.blit(stepsTxt, (42 * SQUARE_SIZE, 2 * SQUARE_SIZE))
+        
+        ## DELIBERATIVE SNAKE
+        screen.blit(score_white.convert_alpha(), (32.4 * SQUARE_SIZE, 8.8 * SQUARE_SIZE))
+        deliberative_global_score = subtitle.render("Score:{0}".format(deliberative_snake.globalScore), 1, 'olivedrab')
+        screen.blit(deliberative_global_score, (33.5 * SQUARE_SIZE, 9.1 * SQUARE_SIZE))
+        screen.blit(size_white.convert_alpha(), (37.4 * SQUARE_SIZE, 8.8 * SQUARE_SIZE))
+        deliberative_size = subtitle.render("Size:{0}".format(deliberative_snake.size), 1, 'olivedrab')
+        screen.blit(deliberative_size, (38.5 * SQUARE_SIZE, 9.1 * SQUARE_SIZE))
+
+        ## REACTIVE SNAKE
+        screen.blit(score_white.convert_alpha(), (32.4 * SQUARE_SIZE, 13.8 * SQUARE_SIZE))
+        reactive_global_score = subtitle.render("Score:{0}".format(reactive_snake.globalScore), 1, 'orange2')
+        screen.blit(reactive_global_score, (33.5 * SQUARE_SIZE, 14.1 * SQUARE_SIZE))
+        screen.blit(size_white.convert_alpha(), (37.4 * SQUARE_SIZE, 13.8 * SQUARE_SIZE))
+        reactive_size = subtitle.render("Size:{0}".format(reactive_snake.size), 1, 'orange2')
+        screen.blit(reactive_size, (38.5 * SQUARE_SIZE, 14.1 * SQUARE_SIZE))
+
+        ## DISPENSER SNAKE
+        screen.blit(score_white.convert_alpha(), (32.4 * SQUARE_SIZE, 18.8 * SQUARE_SIZE))
+        dispenser_global_score = subtitle.render("Score:{0}".format(dispenser_snake.globalScore), 1, 'indianred')
+        screen.blit(dispenser_global_score, (33.5 * SQUARE_SIZE, 19.1 * SQUARE_SIZE))
+        screen.blit(size_white.convert_alpha(), (37.4 * SQUARE_SIZE, 18.8 * SQUARE_SIZE))
+        dispenser_size = subtitle.render("Size:{0}".format(dispenser_snake.size), 1, 'indianred')
+        screen.blit(dispenser_size, (38.5 * SQUARE_SIZE, 19.1 * SQUARE_SIZE))
+
+        ## TRAP SNAKE
+        screen.blit(score_white.convert_alpha(), (32.4 * SQUARE_SIZE, 23.8 * SQUARE_SIZE))
+        trap_global_score = subtitle.render("Score:{0}".format(trap_snake.globalScore), 1, 'lightslategrey')
+        screen.blit(trap_global_score, (33.5 * SQUARE_SIZE, 24.1 * SQUARE_SIZE))
+        screen.blit(size_white.convert_alpha(), (37.4 * SQUARE_SIZE, 23.8 * SQUARE_SIZE))
+        trap_size = subtitle.render("Size:{0}".format(trap_snake.size), 1, 'lightslategrey')
+        screen.blit(trap_size, (38.5 * SQUARE_SIZE, 24.1 * SQUARE_SIZE))
+
+    else:
+        pressD = text.render("[ Press D ] deliberative snake vision", 1, basic_color)
+        screen.blit(pressD, (30.2 * SQUARE_SIZE, 0.5 * SQUARE_SIZE))
+        stepsTxt = text.render("Steps {0}".format(stepCount), 1, basic_color)
+        screen.blit(stepsTxt, (42 * SQUARE_SIZE, 2 * SQUARE_SIZE))
+        
+        ## DELIBERATIVE SNAKE
+        screen.blit(score_black.convert_alpha(), (32.4 * SQUARE_SIZE, 8.8 * SQUARE_SIZE))
+        deliberative_global_score = subtitle.render("Score:{0}".format(deliberative_snake.globalScore), 1, 'olivedrab')
+        screen.blit(deliberative_global_score, (33.5 * SQUARE_SIZE, 9.1 * SQUARE_SIZE))
+        screen.blit(size_black.convert_alpha(), (37.4 * SQUARE_SIZE, 8.8 * SQUARE_SIZE))
+        deliberative_size = subtitle.render("Size:{0}".format(deliberative_snake.size), 1, 'olivedrab')
+        screen.blit(deliberative_size, (38.5 * SQUARE_SIZE, 9.1 * SQUARE_SIZE))
+
+        ## REACTIVE SNAKE
+        screen.blit(score_black.convert_alpha(), (32.4 * SQUARE_SIZE, 13.8 * SQUARE_SIZE))
+        reactive_global_score = subtitle.render("Score:{0}".format(reactive_snake.globalScore), 1, 'orange2')
+        screen.blit(reactive_global_score, (33.5 * SQUARE_SIZE, 14.1 * SQUARE_SIZE))
+        screen.blit(size_black.convert_alpha(), (37.4 * SQUARE_SIZE, 13.8 * SQUARE_SIZE))
+        reactive_size = subtitle.render("Size:{0}".format(reactive_snake.size), 1, 'orange2')
+        screen.blit(reactive_size, (38.5 * SQUARE_SIZE, 14.1 * SQUARE_SIZE))
+
+        ## DISPENSER SNAKE
+        screen.blit(score_black.convert_alpha(), (32.4 * SQUARE_SIZE, 18.8 * SQUARE_SIZE))
+        dispenser_global_score = subtitle.render("Score:{0}".format(dispenser_snake.globalScore), 1, 'indianred')
+        screen.blit(dispenser_global_score, (33.5 * SQUARE_SIZE, 19.1 * SQUARE_SIZE))
+        screen.blit(size_black.convert_alpha(), (37.4 * SQUARE_SIZE, 18.8 * SQUARE_SIZE))
+        dispenser_size = subtitle.render("Size:{0}".format(dispenser_snake.size), 1, 'indianred')
+        screen.blit(dispenser_size, (38.5 * SQUARE_SIZE, 19.1 * SQUARE_SIZE))
+
+        ## TRAP SNAKE
+        screen.blit(score_black.convert_alpha(), (32.4 * SQUARE_SIZE, 23.8 * SQUARE_SIZE))
+        trap_global_score = subtitle.render("Score:{0}".format(trap_snake.globalScore), 1, 'lightslategrey')
+        screen.blit(trap_global_score, (33.5 * SQUARE_SIZE, 24.1 * SQUARE_SIZE))
+        screen.blit(size_black.convert_alpha(), (37.4 * SQUARE_SIZE, 23.8 * SQUARE_SIZE))
+        trap_size = subtitle.render("Size:{0}".format(trap_snake.size), 1, 'lightslategrey')
+        screen.blit(trap_size, (38.5 * SQUARE_SIZE, 24.1 * SQUARE_SIZE))
+
+    snakeRoyaleTxt = title.render("Snake Royale", 1, basic_color)
+    screen.blit(snakeRoyaleTxt, (34 * SQUARE_SIZE, 3 * SQUARE_SIZE))
+    scoreBoardTxt = subtitle.render("- Score Board -", 1, basic_color)
+    screen.blit(scoreBoardTxt, (35 * SQUARE_SIZE, 4.5 * SQUARE_SIZE))
+
+    ## DELIBERATIVE SNAKE
+    screen.blit(deliberative_snake_icon.convert_alpha(), (31 * SQUARE_SIZE, 6 * SQUARE_SIZE))
+    deliberativeTxt = subtitle.render("Deliberative Snake", 1, 'olivedrab')
+    screen.blit(deliberativeTxt, (32.5 * SQUARE_SIZE, 6.5 * SQUARE_SIZE))
+    screen.blit(apple_icon.convert_alpha(), (30.1 * SQUARE_SIZE, 7.5 * SQUARE_SIZE))
+    deliberative_apple_score = subtitle.render("{0}".format(deliberative_snake.apples), 1, 'olivedrab')
+    screen.blit(deliberative_apple_score, (31.2 * SQUARE_SIZE, 7.8 * SQUARE_SIZE))
+    screen.blit(banana_icon.convert_alpha(), (32.6 * SQUARE_SIZE, 7.5 * SQUARE_SIZE))
+    deliberative_banana_score = subtitle.render("{0}".format(deliberative_snake.bananas), 1, 'olivedrab')
+    screen.blit(deliberative_banana_score, (33.7 * SQUARE_SIZE, 7.8 * SQUARE_SIZE))
+    screen.blit(strawberry_icon.convert_alpha(), (35.1 * SQUARE_SIZE, 7.5 * SQUARE_SIZE))
+    deliberative_strawberry_score = subtitle.render("{0}".format(deliberative_snake.strawberries), 1, 'olivedrab')
+    screen.blit(deliberative_strawberry_score, (36.2 * SQUARE_SIZE, 7.8 * SQUARE_SIZE))
+    screen.blit(mushroom_icon.convert_alpha(), (37.6 * SQUARE_SIZE, 7.5 * SQUARE_SIZE))
+    deliberative_mushroom_score = subtitle.render("{0}".format(deliberative_snake.mushrooms), 1, 'olivedrab')
+    screen.blit(deliberative_mushroom_score, (38.7 * SQUARE_SIZE, 7.8 * SQUARE_SIZE))
+    screen.blit(ice_icon.convert_alpha(), (40.1 * SQUARE_SIZE, 7.5 * SQUARE_SIZE))
+    deliberative_ice_score = subtitle.render("{0}".format(deliberative_snake.ices), 1, 'olivedrab')
+    screen.blit(deliberative_ice_score, (41.2 * SQUARE_SIZE, 7.8 * SQUARE_SIZE))
+    screen.blit(dispenser_icon.convert_alpha(), (42.6 * SQUARE_SIZE, 7.8 * SQUARE_SIZE))
+    deliberative_dispenser_score = subtitle.render("{0}".format(deliberative_snake.dispenser), 1, 'olivedrab')
+    screen.blit(deliberative_dispenser_score, (43.5 * SQUARE_SIZE, 7.8 * SQUARE_SIZE))
+
+    ## REACTIVE SNAKE
+    screen.blit(reactive_snake_icon.convert_alpha(), (31 * SQUARE_SIZE, 11 * SQUARE_SIZE))
+    reactiveTxt = subtitle.render("Reactive Snake", 1, 'orange2')
+    screen.blit(reactiveTxt, (32.5 * SQUARE_SIZE, 11.5 * SQUARE_SIZE))
+    screen.blit(apple_icon.convert_alpha(), (30.1 * SQUARE_SIZE, 12.5 * SQUARE_SIZE))
+    reactive_apple_score = subtitle.render("{0}".format(reactive_snake.apples), 1, 'orange2')
+    screen.blit(reactive_apple_score, (31.2 * SQUARE_SIZE, 12.8 * SQUARE_SIZE))
+    screen.blit(banana_icon.convert_alpha(), (32.6 * SQUARE_SIZE, 12.5 * SQUARE_SIZE))
+    reactive_banana_score = subtitle.render("{0}".format(reactive_snake.bananas), 1, 'orange2')
+    screen.blit(reactive_banana_score, (33.7 * SQUARE_SIZE, 12.8 * SQUARE_SIZE))
+    screen.blit(strawberry_icon.convert_alpha(), (35.1 * SQUARE_SIZE, 12.5 * SQUARE_SIZE))
+    reactive_strawberry_score = subtitle.render("{0}".format(reactive_snake.strawberries), 1, 'orange2')
+    screen.blit(reactive_strawberry_score, (36.2 * SQUARE_SIZE, 12.8 * SQUARE_SIZE))
+    screen.blit(mushroom_icon.convert_alpha(), (37.6 * SQUARE_SIZE, 12.5 * SQUARE_SIZE))
+    reactive_mushroom_score = subtitle.render("{0}".format(reactive_snake.mushrooms), 1, 'orange2')
+    screen.blit(reactive_mushroom_score, (38.7 * SQUARE_SIZE, 12.8 * SQUARE_SIZE))
+    screen.blit(ice_icon.convert_alpha(), (40.1 * SQUARE_SIZE, 12.5 * SQUARE_SIZE))
+    reactive_ice_score = subtitle.render("{0}".format(reactive_snake.ices), 1, 'orange2')
+    screen.blit(reactive_ice_score, (41.2 * SQUARE_SIZE, 12.8 * SQUARE_SIZE))
+    screen.blit(dispenser_icon.convert_alpha(), (42.6 * SQUARE_SIZE, 12.8 * SQUARE_SIZE))
+    reactive_dispenser_score = subtitle.render("{0}".format(reactive_snake.dispenser), 1, 'orange2')
+    screen.blit(reactive_dispenser_score, (43.5 * SQUARE_SIZE, 12.8 * SQUARE_SIZE))
+
+    ## DISPENSER SNAKE
+    screen.blit(dispenser_snake_icon.convert_alpha(), (31 * SQUARE_SIZE, 16 * SQUARE_SIZE))
+    dispenserTxt = subtitle.render("Dispenser Snake", 1, 'indianred')
+    screen.blit(dispenserTxt, (32.5 * SQUARE_SIZE, 16.5 * SQUARE_SIZE))
+    screen.blit(apple_icon.convert_alpha(), (30.1 * SQUARE_SIZE, 17.5 * SQUARE_SIZE))
+    dispenser_apple_score = subtitle.render("{0}".format(dispenser_snake.apples), 1, 'indianred')
+    screen.blit(dispenser_apple_score, (31.2 * SQUARE_SIZE, 17.8 * SQUARE_SIZE))
+    screen.blit(banana_icon.convert_alpha(), (32.6 * SQUARE_SIZE, 17.5 * SQUARE_SIZE))
+    dispenser_banana_score = subtitle.render("{0}".format(dispenser_snake.bananas), 1, 'indianred')
+    screen.blit(dispenser_banana_score, (33.7 * SQUARE_SIZE, 17.8 * SQUARE_SIZE))
+    screen.blit(strawberry_icon.convert_alpha(), (35.1 * SQUARE_SIZE, 17.5 * SQUARE_SIZE))
+    dispenser_strawberry_score = subtitle.render("{0}".format(dispenser_snake.strawberries), 1, 'indianred')
+    screen.blit(dispenser_strawberry_score, (36.2 * SQUARE_SIZE, 17.8 * SQUARE_SIZE))
+    screen.blit(mushroom_icon.convert_alpha(), (37.6 * SQUARE_SIZE, 17.5 * SQUARE_SIZE))
+    dispenser_mushroom_score = subtitle.render("{0}".format(dispenser_snake.mushrooms), 1, 'indianred')
+    screen.blit(dispenser_mushroom_score, (38.7 * SQUARE_SIZE, 17.8 * SQUARE_SIZE))
+    screen.blit(ice_icon.convert_alpha(), (40.1 * SQUARE_SIZE, 17.5 * SQUARE_SIZE))
+    dispenser_ice_score = subtitle.render("{0}".format(dispenser_snake.ices), 1, 'indianred')
+    screen.blit(dispenser_ice_score, (41.2 * SQUARE_SIZE, 17.8 * SQUARE_SIZE))
+    screen.blit(dispenser_icon.convert_alpha(), (42.6 * SQUARE_SIZE, 17.8 * SQUARE_SIZE))
+    dispenser_dispenser_score = subtitle.render("{0}".format(dispenser_snake.dispenser), 1, 'indianred')
+    screen.blit(dispenser_dispenser_score, (43.5 * SQUARE_SIZE, 17.8 * SQUARE_SIZE))
+
+    ## TRAP SNAKE
+    screen.blit(trap_snake_icon.convert_alpha(), (31 * SQUARE_SIZE, 21 * SQUARE_SIZE))
+    trapTxt = subtitle.render("Trap Snake", 1, 'lightslategrey')
+    screen.blit(trapTxt, (32.5 * SQUARE_SIZE, 21.5 * SQUARE_SIZE))
+    screen.blit(apple_icon.convert_alpha(), (30.1 * SQUARE_SIZE, 22.5 * SQUARE_SIZE))
+    trap_apple_score = subtitle.render("{0}".format(trap_snake.apples), 1, 'lightslategrey')
+    screen.blit(trap_apple_score, (31.2 * SQUARE_SIZE, 22.8 * SQUARE_SIZE))
+    screen.blit(banana_icon.convert_alpha(), (32.6 * SQUARE_SIZE, 22.5 * SQUARE_SIZE))
+    trap_banana_score = subtitle.render("{0}".format(trap_snake.bananas), 1, 'lightslategrey')
+    screen.blit(trap_banana_score, (33.7 * SQUARE_SIZE, 22.8 * SQUARE_SIZE))
+    screen.blit(strawberry_icon.convert_alpha(), (35.1 * SQUARE_SIZE, 22.5 * SQUARE_SIZE))
+    trap_strawberry_score = subtitle.render("{0}".format(trap_snake.strawberries), 1, 'lightslategrey')
+    screen.blit(trap_strawberry_score, (36.2 * SQUARE_SIZE, 22.8 * SQUARE_SIZE))
+    screen.blit(mushroom_icon.convert_alpha(), (37.6 * SQUARE_SIZE, 22.5 * SQUARE_SIZE))
+    trap_mushroom_score = subtitle.render("{0}".format(trap_snake.mushrooms), 1, 'lightslategrey')
+    screen.blit(trap_mushroom_score, (38.7 * SQUARE_SIZE, 22.8 * SQUARE_SIZE))
+    screen.blit(ice_icon.convert_alpha(), (40.1 * SQUARE_SIZE, 22.5 * SQUARE_SIZE))
+    trap_ice_score = subtitle.render("{0}".format(trap_snake.ices), 1, 'lightslategrey')
+    screen.blit(trap_ice_score, (41.2 * SQUARE_SIZE, 22.8 * SQUARE_SIZE))
+    screen.blit(dispenser_icon.convert_alpha(), (42.6 * SQUARE_SIZE, 22.8 * SQUARE_SIZE))
+    trap_dispenser_score = subtitle.render("{0}".format(trap_snake.dispenser), 1, 'lightslategrey')
+    screen.blit(trap_dispenser_score, (43.5 * SQUARE_SIZE, 22.8 * SQUARE_SIZE))
+
 
 if __name__ == "__main__":
     main()

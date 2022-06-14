@@ -1,6 +1,7 @@
 import pygame as p
 from pygame import Vector2
 from board import *
+from Node import *
 
 class Trap_Snake:
 
@@ -9,7 +10,7 @@ class Trap_Snake:
         
         self.body = [Vector2(7,10), Vector2(6,10), Vector2(5,10)]
         self.direction = p.Vector2(1, 0)
-        # TODO: rearrange which snake goes where in the start
+        self.size = len(self.body)
         self.globalScore = 0
 
         # F R U I T S
@@ -24,7 +25,6 @@ class Trap_Snake:
         # D I S P E N S E R
         self.dispenser = 0
         # shared_dispenser = 0
-        # TODO: Criar várias cobras e identificar estes eventos
 
     def drawSnake (self, screen):
         for cell in self.body:
@@ -43,3 +43,72 @@ class Trap_Snake:
         body_copy = self.body[:]
         body_copy.append(body_copy[-1])
         self.body = body_copy[:]
+        self.size = len(self.body)
+
+    def search(self, start, goals, obstacles, actions):
+        print("START " + str(start))
+        print("GOALS " + str(goals))
+        open = []
+        closed = []
+        path = []
+
+        start_node = Node(start, None)
+        goal_nodes = [Node(g, None) for g in goals]
+
+        open.append(start_node)
+
+        while len(open) > 0:
+            open.sort()
+            node = open.pop(0)
+            closed.append(node)
+            if node in goal_nodes:
+                while node != start_node:
+                    path.append(node.state)
+                    node = node.parent
+                path.append(node.state)
+                return path[::-1]
+
+            children = self.getChildren(node, obstacles, actions)
+            for child in children:
+                if child not in closed and self.lowest_f(open, child):
+                    open.append(child)
+
+        return path[::-1]
+
+    def lowest_f(self, open, child):
+        for node in open:
+            if (node == child and node.f <= child.f):
+                return False
+        return True
+
+    def getChildren(self, parent, obstacles, actions):
+        children = []
+        for a in actions:
+            neighbour_pos = parent.state + a
+            if neighbour_pos not in obstacles:
+                newChild = Node(neighbour_pos, parent)
+                newChild.g = parent.g + 1
+                newChild.h = Vector2.distance_squared_to(parent.state, neighbour_pos)
+                children.append(newChild)
+        return children
+
+
+    def action(self, fruits, dispensers, traps, snakes):
+        actions = [Vector2(0,1), Vector2(0,-1), Vector2(1,0), Vector2(-1,0)]
+        obstacles = []
+        for s in snakes:
+            obstacles.extend(s.body)
+        goals = traps.ices + traps.mushrooms
+        if goals == []:
+            goals = fruits.apples + fruits.bananas + fruits.strawberries + dispensers.dispensers
+        path = self.search(self.body[0], goals, obstacles, actions)
+        print("\n * * * \n")
+        print(path)
+
+        if len(path) < 2: # can't find/end of path, pick any legal move
+            for a in actions:
+                if self.body[0] + a not in obstacles:
+                    self.direction = a
+        else:
+            self.direction = path[1] - path[0]
+            print("DIR: " + str(self.direction))
