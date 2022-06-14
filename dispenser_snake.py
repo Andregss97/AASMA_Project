@@ -11,6 +11,7 @@ class Dispenser_Snake:
         self.body = [Vector2(DIMENSION-3,DIMENSION-1), Vector2(DIMENSION-2,DIMENSION-1), Vector2(DIMENSION-1, DIMENSION-1)]
         self.direction = p.Vector2(-1, 0)
         self.objective = p.Vector2
+        self.exploreTO = []
         self.size = len(self.body)
         self.globalScore = 0
 
@@ -98,11 +99,28 @@ class Dispenser_Snake:
         obstacles = []
         for s in snakes:
             obstacles.extend(s.body)
+        if self.body[0] in self.exploreTO:
+            self.exploreTO = []
 
         if not self.activeDispenser and dispensers.STATE != 2:
             goals = dispensers.dispensers
         else:
             goals = fruits.apples + fruits.bananas + fruits.strawberries + traps.mushrooms + traps.ices
+
+        if goals == []:
+            if self.exploreTO == []:
+                while True:
+                    rand_X = randrange(DIMENSION-1)
+                    rand_Y = randrange(DIMENSION-1)
+                    new_pos = Vector2(rand_X, rand_Y)
+                    if new_pos not in obstacles:
+                        goals = [new_pos]
+                        self.exploreTO = [new_pos]
+                        break
+            else:
+                goals = self.exploreTO
+        else:
+            self.exploreTO = []
         path = self.search(self.body[0], goals, obstacles, actions)
 
         if len(path) < 2: # can't find/end of path, pick any legal move

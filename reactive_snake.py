@@ -10,7 +10,7 @@ class Reactive_Snake:
 
         self.body = [Vector2(DIMENSION-3,0), Vector2(DIMENSION-2,0), Vector2(DIMENSION-1, 0)]
         self.direction = p.Vector2(-1, 0)
-
+        self.exploreTO = []
         self.objective = p.Vector2
         self.size = len(self.body)
         self.globalScore = 0
@@ -100,6 +100,9 @@ class Reactive_Snake:
         obstacles = []
         for s in snakes:
             obstacles.extend(s.body)
+        if self.body[0] in self.exploreTO:
+            self.exploreTO = []
+
         if not self.activeDispenser and dispensers.STATE != 2:
             goals = dispensers.dispensers
         elif fruits.strawberries != []:
@@ -110,6 +113,21 @@ class Reactive_Snake:
             goals = fruits.apples
         else:
             goals = traps.mushrooms + traps.ices
+
+        if goals == []:
+            if self.exploreTO == []:
+                while True:
+                    rand_X = randrange(DIMENSION-1)
+                    rand_Y = randrange(DIMENSION-1)
+                    new_pos = Vector2(rand_X, rand_Y)
+                    if new_pos not in obstacles:
+                        goals = [new_pos]
+                        self.exploreTO = [new_pos]
+                        break
+            else:
+                goals = self.exploreTO
+        else:
+            self.exploreTO = []
 
         path = self.search(self.body[0], goals, obstacles, actions)
 

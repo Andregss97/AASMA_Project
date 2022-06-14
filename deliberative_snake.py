@@ -1,4 +1,3 @@
-import random
 import pygame as p
 import numpy as np
 from pygame import Vector2
@@ -152,7 +151,6 @@ class Deliberative_Snake:
 
         start_node = Node(start, None)
         goal_nodes = [Node(g, None) for g in goals]
-        print(goal_nodes[0].state)
 
         open.append(start_node)
 
@@ -197,7 +195,7 @@ class Deliberative_Snake:
         obstacles = []
         for s in snakes:
             obstacles.extend(s.body)
-        if self.exploreTO in self.visibleArea:
+        if self.body[0] in self.exploreTO:
             self.exploreTO = []
         
         if not self.activeDispenser and dispensers.STATE != 2:
@@ -208,10 +206,10 @@ class Deliberative_Snake:
         if goals == []:
             if self.exploreTO == []:
                 while True:
-                    rand_X = randrange(DIMENSION)
-                    rand_Y = randrange(DIMENSION)
+                    rand_X = randrange(DIMENSION-1)
+                    rand_Y = randrange(DIMENSION-1)
                     new_pos = Vector2(rand_X, rand_Y)
-                    if new_pos not in self.body and new_pos not in self.visibleArea and self.manhattanDistance(self.body[0], new_pos) < 12:
+                    if new_pos not in obstacles and new_pos not in self.visibleArea and self.manhattanDistance(self.body[0], new_pos) < 12:
                         goals = [new_pos]
                         self.exploreTO = [new_pos]
                         break
@@ -221,11 +219,6 @@ class Deliberative_Snake:
             self.exploreTO = []
         
         path = self.search(self.body[0], goals, obstacles, actions, dispensers)
-        if self.exploreTO != []:
-            print("\n * * EXPLORING * * \n")
-        else:
-            print("\n * * * \n")
-
 
         if len(path) < 2: # can't find/end of path, pick any legal move
             for a in actions:
