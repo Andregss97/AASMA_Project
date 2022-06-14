@@ -1,13 +1,11 @@
 import pygame as p
-from pygame import Vector2
-from random import randrange
 from board import *
 
 mushroom = p.image.load('snake_imgs/mushroom.svg')
 ice = p.image.load('snake_imgs/ice.svg')
 
-NMBR_START_MUSHROOMS = 3
-NMBR_START_ICES = 2
+NMBR_START_MUSHROOMS = 7
+NMBR_START_ICES = 4
 
 class Traps:
 
@@ -16,6 +14,8 @@ class Traps:
         self.ices = []
         self.mushroomNMB = NMBR_START_MUSHROOMS
         self.iceNMB = NMBR_START_ICES
+        self.mushroomPoints = -1
+        self.icePoints = 0
 
     def definePositions(self, board: Board):
         self.mushrooms = board.generateBoardPositions(NMBR_START_MUSHROOMS)

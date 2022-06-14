@@ -5,13 +5,17 @@ apple = p.image.load('snake_imgs/apple.svg')
 banana = p.image.load('snake_imgs/banana.svg')
 strawberry = p.image.load('snake_imgs/strawberry.svg')
 
-NMBR_START_APPLES = 5
-NMBR_START_BANANAS = 2
-NMBR_START_STRAWBERRIES = 4
+NMBR_START_APPLES = 20
+NMBR_START_BANANAS = 10
+NMBR_START_STRAWBERRIES = 5
 
-NMBR_DISPENSER_APPLES = 5
+NMBR_DISPENSER_APPLES = 10
+NMBR_DISPENSER_BANANAS = 5
+NMBR_DISPENSER_STRAWBERRIES = 3
+
+NMBR_DISPENSER_APPLES = 4
 NMBR_DISPENSER_BANANAS = 2
-NMBR_DISPENSER_STRAWBERRIES = 4
+NMBR_DISPENSER_STRAWBERRIES = 1
 
 class Fruits:
 
@@ -22,6 +26,9 @@ class Fruits:
         self.appleNMB = NMBR_START_APPLES
         self.bananaNMB = NMBR_START_BANANAS
         self.strawberryNMB = NMBR_START_STRAWBERRIES
+        self.applePoints = 2
+        self.bananaPoints = 3
+        self.strawberryPoints = 5
 
     def definePositions(self, board: Board):
         self.apples = board.generateBoardPositions(NMBR_START_APPLES)

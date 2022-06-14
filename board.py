@@ -31,4 +31,3 @@ class Board:
                 self.busy_cells.append(new_pos)
                 i += 1
         return positions
-

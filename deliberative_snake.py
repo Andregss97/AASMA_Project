@@ -24,7 +24,7 @@ class Deliberative_Snake:
         self.visibleArea = []
         self.heuristics = []
         
-        self.body = [Vector2(7,10), Vector2(6,10), Vector2(5,10)]
+        self.body = [Vector2(7,5), Vector2(6,5), Vector2(5,5)]
         self.direction = p.Vector2(1, 0)
         self.exploreTO = []
         self.size = len(self.body)
@@ -96,6 +96,18 @@ class Deliberative_Snake:
                 self.icesScanned.append(cell)
             if cell in dispensers.dispensers and cell not in self.dispensersScanned:
                 self.dispensersScanned.append(cell)
+
+            if cell in self.applesScanned and cell not in fruits.apples:
+                self.applesScanned.remove(cell)
+            if cell in self.bananasScanned and cell not in fruits.bananas:
+                self.bananasScanned.remove(cell)
+            if cell in self.strawberriesScanned and cell not in fruits.strawberries:
+                self.strawberriesScanned.remove(cell)
+            if cell in self.mushroomsScanned and cell not in traps.mushrooms:
+                self.mushroomsScanned.remove(cell)
+            if cell in self.icesScanned and cell not in traps.ices:
+                self.icesScanned.remove(cell)
+
             # draw observable cells
             p.draw.rect(screen, self.scanColor, p.Rect(cell.x * SQUARE_SIZE, cell.y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
@@ -183,16 +195,16 @@ class Deliberative_Snake:
     def action(self, dispensers, snakes):
         actions = [Vector2(0,1), Vector2(0,-1), Vector2(1,0), Vector2(-1,0)]
         obstacles = []
-        obstacles.extend(self.mushroomsScanned)
+        obstacles.extend(snakes)
         if self.body[0] in self.exploreTO:
             self.exploreTO = []
         for s in snakes:
             obstacles.extend(s.body)
         
         if not self.activeDispenser and dispensers.STATE != 2:
-            goals = self.strawberriesScanned + self.bananasScanned + self.applesScanned + self.dispensersScanned + self.icesScanned
+            goals = self.strawberriesScanned + self.bananasScanned + self.applesScanned + self.dispensersScanned + self.icesScanned + self.mushroomsScanned
         else:
-            goals = self.strawberriesScanned + self.bananasScanned + self.applesScanned + self.icesScanned
+            goals = self.strawberriesScanned + self.bananasScanned + self.applesScanned + self.icesScanned + self.mushroomsScanned
 
         if goals == []:
             if self.exploreTO == []:
