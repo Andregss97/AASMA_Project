@@ -8,7 +8,7 @@ class Dispenser_Snake:
     def __init__(self):
         self.color = "indianred"
         
-        self.body = [Vector2(20,10), Vector2(21,10), Vector2(22,10)]
+        self.body = [Vector2(DIMENSION-3,DIMENSION-1), Vector2(DIMENSION-2,DIMENSION-1), Vector2(DIMENSION-1, DIMENSION-1)]
         self.direction = p.Vector2(-1, 0)
         self.objective = p.Vector2
         self.size = len(self.body)

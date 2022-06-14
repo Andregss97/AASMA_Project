@@ -8,8 +8,8 @@ class Reactive_Snake:
     def __init__(self):
         self.color = "orange2"
 
-        self.body = [Vector2(7,10), Vector2(6,10), Vector2(5,10)]
-        self.direction = p.Vector2(1, 0)
+        self.body = [Vector2(DIMENSION-3,0), Vector2(DIMENSION-2,0), Vector2(DIMENSION-1, 0)]
+        self.direction = p.Vector2(-1, 0)
 
         self.objective = p.Vector2
         self.size = len(self.body)

@@ -24,7 +24,7 @@ class Deliberative_Snake:
         self.visibleArea = []
         self.heuristics = []
         
-        self.body = [Vector2(7,5), Vector2(6,5), Vector2(5,5)]
+        self.body = [Vector2(2,0), Vector2(1,0), Vector2(0,0)]
         self.direction = p.Vector2(1, 0)
         self.exploreTO = []
         self.size = len(self.body)
