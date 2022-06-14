@@ -412,31 +412,37 @@ def main():
         if deliberative_snake.body[0] in deliberative_snake.body[1:] or deliberative_snake.body[0].x < 0 or deliberative_snake.body[0].x >= board.boardSize or deliberative_snake.body[0].y < 0 or deliberative_snake.body[0].y >= board.boardSize:
             # snake hit itself or went off the edges
             print("\n DELIBERATIVE SNAKE LOST !\n")
+            p.display.set_caption('Snake Royale - DELIBERATIVE SNAKE LOST !')
             score = True
 
         if reactive_snake.body[0] in reactive_snake.body[1:] or reactive_snake.body[0].x < 0 or reactive_snake.body[0].x >= board.boardSize or reactive_snake.body[0].y < 0 or reactive_snake.body[0].y >= board.boardSize:
             # snake hit itself or went off the edges
             print("\n REACTIVE SNAKE LOST !\n")
+            p.display.set_caption('Snake Royale - REACTIVE SNAKE LOST !')
             score = True
 
         if dispenser_snake.body[0] in dispenser_snake.body[1:] or dispenser_snake.body[0].x < 0 or dispenser_snake.body[0].x >= board.boardSize or dispenser_snake.body[0].y < 0 or dispenser_snake.body[0].y >= board.boardSize:
             # snake hit itself or went off the edges
             print("\n DISPENSER SNAKE LOST !\n")
+            p.display.set_caption('Snake Royale - DISPENSER SNAKE LOST !')
             score = True
 
         if deliberative_snake.size == 50 or deliberative_snake.globalScore >= 150:
             # snake achieved the maximum size or points and WON!
             print("\n DELIBERATIVE SNAKE WINS !\n")
+            p.display.set_caption('Snake Royale - DELIBERATIVE SNAKE WINS !')
             score = True
         
         if reactive_snake.size == 50 or reactive_snake.globalScore >= 150:
             # snake achieved the maximum size or points and WON!
             print("\n REACTIVE SNAKE WINS !\n")
+            p.display.set_caption('Snake Royale - REACTIVE SNAKE WINS !')
             score = True
         
         if dispenser_snake.size == 50 or dispenser_snake.globalScore == 150:
             # snake achieved the maximum size or points and WON!
             print("\n DISPENSER SNAKE WINS !\n")
+            p.display.set_caption('Snake Royale - DISPENSER SNAKE WINS !')
             score = True
 
         if score:
@@ -495,7 +501,6 @@ def main():
             if deliberative_snake.exploreTO != [] and deliberative_snake.exploreTO[0] not in deliberative_snake.visibleArea and deliberative_snake.exploreTO[0] not in deliberative_snake.body:
                 p.draw.rect(screen, "red", p.Rect(deliberative_snake.exploreTO[0].x * SQUARE_SIZE, deliberative_snake.exploreTO[0].y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE), border_radius=1)
             board.drawLines(screen)
-            pass
         else:
             screen.fill(screen_color)
             deliberative_snake.scanArea(screen, fruits, traps, dispensers)
@@ -515,6 +520,48 @@ def main():
             board.drawLines(screen)
         p.display.update()
         clock.tick(MAX_FPS)
+    while 1:
+        for e in p.event.get():
+            if e.type == p.QUIT:
+                p.quit()
+                sys.exit()
+            if e.type == p.KEYDOWN:
+                if e.key == p.K_d:
+                    if deliberative_snake_screen :
+                        deliberative_snake_screen = False
+                    else:
+                        deliberative_snake_screen = True
+        if deliberative_snake_screen:
+            screen.fill(deliberative_screen_color)
+            deliberative_snake.scanArea(screen, fruits, traps, dispensers)
+            deliberative_snake.drawFruits(screen)
+            deliberative_snake.drawTraps(screen)
+            deliberative_snake.drawDispensers(screen, dispensers)
+            deliberative_snake.updateDispenserState(screen, dispensers)
+
+            deliberative_snake.drawSnake(screen)
+            reactive_snake.drawSnake(screen)
+            dispenser_snake.drawSnake(screen)
+            drawScoreBoard(screen, deliberative_snake_screen, deliberative_snake, reactive_snake, trap_snake, dispenser_snake, stepCount)
+
+            if deliberative_snake.exploreTO != [] and deliberative_snake.exploreTO[0] not in deliberative_snake.visibleArea and deliberative_snake.exploreTO[0] not in deliberative_snake.body:
+                p.draw.rect(screen, "red", p.Rect(deliberative_snake.exploreTO[0].x * SQUARE_SIZE, deliberative_snake.exploreTO[0].y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE), border_radius=1)
+            board.drawLines(screen)
+        else:
+            screen.fill(screen_color)
+            deliberative_snake.scanArea(screen, fruits, traps, dispensers)
+            fruits.drawFruits(screen)
+            traps.drawTraps(screen)
+            dispensers.drawDispensers(screen)
+            dispensers.updateDispenserState(screen)
+
+            deliberative_snake.drawSnake(screen)
+            reactive_snake.drawSnake(screen)
+            dispenser_snake.drawSnake(screen)
+            board.drawLines(screen)
+
+            drawScoreBoard(screen, deliberative_snake_screen, deliberative_snake, reactive_snake, trap_snake, dispenser_snake, stepCount)
+        p.display.update()
 
 def drawScoreBoard(screen, flag: bool, deliberative_snake: Deliberative_Snake, reactive_snake: Reactive_Snake, trap_snake: Trap_Snake, dispenser_snake: Dispenser_Snake, stepCount: int):
     ## Score Board
@@ -527,7 +574,7 @@ def drawScoreBoard(screen, flag: bool, deliberative_snake: Deliberative_Snake, r
         deliberative_snake_visionTxt = subtitle.render("Deliberative Snake Vision  ON", 1, basic_color)
         screen.blit(deliberative_snake_visionTxt, (32 * SQUARE_SIZE, 0.5 * SQUARE_SIZE))
         stepsTxt = text.render("Steps {0}".format(stepCount), 1, basic_color)
-        screen.blit(stepsTxt, (42 * SQUARE_SIZE, 2 * SQUARE_SIZE))
+        screen.blit(stepsTxt, (41 * SQUARE_SIZE, 2 * SQUARE_SIZE))
         
         ## DELIBERATIVE SNAKE
         screen.blit(score_white.convert_alpha(), (32.4 * SQUARE_SIZE, 8.8 * SQUARE_SIZE))
@@ -565,7 +612,7 @@ def drawScoreBoard(screen, flag: bool, deliberative_snake: Deliberative_Snake, r
         pressD = text.render("[ Press D ] deliberative snake vision", 1, basic_color)
         screen.blit(pressD, (30.2 * SQUARE_SIZE, 0.5 * SQUARE_SIZE))
         stepsTxt = text.render("Steps {0}".format(stepCount), 1, basic_color)
-        screen.blit(stepsTxt, (42 * SQUARE_SIZE, 2 * SQUARE_SIZE))
+        screen.blit(stepsTxt, (41 * SQUARE_SIZE, 2 * SQUARE_SIZE))
         
         ## DELIBERATIVE SNAKE
         screen.blit(score_black.convert_alpha(), (32.4 * SQUARE_SIZE, 8.8 * SQUARE_SIZE))
