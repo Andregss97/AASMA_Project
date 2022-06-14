@@ -222,15 +222,6 @@ class Deliberative_Snake:
                     self.direction = a
         else:
             self.direction = path[1] - path[0]
-            # print("DIR: " + str(self.direction))
-
-    '''
-    def calculateHeuristics(self, goals: list, dispensers):
-        self.heuristics = [0] * len(goals)
-        for i in range(len(goals)):
-            goal =  goals[i]
-            self.heuristics[i] = self.manhattanDistance(self.body[0], goal) + (10 - self.findReward(goal))
-    '''
 
     def findReward(self, goal: Vector2, dispensers):
         if goal in self.applesScanned:
