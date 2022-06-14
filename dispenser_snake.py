@@ -98,6 +98,7 @@ class Dispenser_Snake:
         obstacles = []
         for s in snakes:
             obstacles.extend(s.body)
+
         if not self.activeDispenser and dispensers.STATE != 2:
             goals = dispensers.dispensers
         else:

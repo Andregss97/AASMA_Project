@@ -65,14 +65,15 @@ def main():
     p.time.set_timer(SCREEN_UPDATE, 300)
 
     while running:
+        reactive_snake.action(fruits, dispensers, traps, snakes)
+        reactive_snake.moveSnake()
 
         deliberative_snake.action(dispensers, snakes)
-        reactive_snake.action(fruits, dispensers, traps, snakes)
-        dispenser_snake.action(fruits, dispensers, traps, snakes)
-
         deliberative_snake.moveSnake()
-        reactive_snake.moveSnake()
+
+        dispenser_snake.action(fruits, dispensers, traps, snakes)
         dispenser_snake.moveSnake()
+
 
         for e in p.event.get():
             if e.type == p.QUIT:

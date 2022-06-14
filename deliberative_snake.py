@@ -197,10 +197,8 @@ class Deliberative_Snake:
         obstacles = []
         for s in snakes:
             obstacles.extend(s.body)
-        if self.body[0] in self.exploreTO:
+        if self.exploreTO in self.visibleArea:
             self.exploreTO = []
-        for s in snakes:
-            obstacles.extend(s.body)
         
         if not self.activeDispenser and dispensers.STATE != 2:
             goals = self.strawberriesScanned + self.bananasScanned + self.applesScanned + self.dispensersScanned + self.icesScanned + self.mushroomsScanned
