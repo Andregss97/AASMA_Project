@@ -195,7 +195,8 @@ class Deliberative_Snake:
     def action(self, dispensers, snakes):
         actions = [Vector2(0,1), Vector2(0,-1), Vector2(1,0), Vector2(-1,0)]
         obstacles = []
-        obstacles.extend(snakes)
+        for s in snakes:
+            obstacles.extend(s.body)
         if self.body[0] in self.exploreTO:
             self.exploreTO = []
         for s in snakes:
