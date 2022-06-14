@@ -18,6 +18,7 @@ def main():
     p.init()
 
     screen = p.display.set_mode((WIDTH, HEIGHT))
+    p.display.set_caption('Snake Royale')
     clock = p.time.Clock()
     screen.fill(p.Color("black"))
     screen_color = "lemonchiffon1"
