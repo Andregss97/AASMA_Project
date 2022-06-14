@@ -9,7 +9,7 @@ from dispensers import *
 from fruits import *
 from traps import *
 
-MAX_FPS = 60
+MAX_FPS = 3
 
 '''
 Main function. Handles initializing application and updating graphics
@@ -21,7 +21,7 @@ def main():
     clock = p.time.Clock()
     screen.fill(p.Color("black"))
     snakes = []
-    running = True
+    running = 1
     score = False
 
     ## Generate all items
@@ -82,12 +82,13 @@ def main():
                 print("----------------------------------------------------------")
                 p.quit()
                 sys.exit()
-            if e.type == SCREEN_UPDATE:
-                reactive_snake.action(fruits, dispensers, traps, snakes)
-                dispenser_snake.action(fruits, dispensers, traps, snakes)
-                reactive_snake.moveSnake()
-                dispenser_snake.moveSnake()
+            # if e.type == SCREEN_UPDATE:
                 
+                
+        reactive_snake.action(fruits, dispensers, traps, snakes)
+        dispenser_snake.action(fruits, dispensers, traps, snakes)
+        reactive_snake.moveSnake()
+        dispenser_snake.moveSnake()
 
         # REACTIVE SNAKE
 
@@ -313,10 +314,11 @@ def main():
             print("Ice: ", dispenser_snake.ices)
             print("Dispenser: ", dispenser_snake.dispenser)
             print("----------------------------------------------------------")
-            running = False
+            running = 0
             
         #######################################################################
 
+        
         screen.fill("lemonchiffon1")
         fruits.drawFruits(screen)
         traps.drawTraps(screen)
