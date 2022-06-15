@@ -2,7 +2,7 @@ import pygame as p
 from pygame import Vector2
 from random import randrange
 
-WIDTH = 900
+WIDTH = 1350 # 900 # 600
 HEIGHT = 900 # 600
 DIMENSION = 30 # 20
 SQUARE_SIZE = HEIGHT // DIMENSION
