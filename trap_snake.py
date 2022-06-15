@@ -7,7 +7,7 @@ class Trap_Snake:
 
     def __init__(self):
         self.color = "lightslategrey"
-        
+
         self.body = [Vector2(7,10), Vector2(6,10), Vector2(5,10)]
         self.direction = p.Vector2(1, 0)
         self.size = len(self.body)
@@ -24,7 +24,7 @@ class Trap_Snake:
 
         # D I S P E N S E R
         self.dispenser = 0
-        # shared_dispenser = 0
+        self.activeDispenser = False
 
     def drawSnake (self, screen):
         for cell in self.body:
@@ -33,7 +33,7 @@ class Trap_Snake:
             cell_rect = p.Rect(x_pos, y_pos, SQUARE_SIZE, SQUARE_SIZE)
 
             p.draw.rect(screen, self.color, cell_rect)
-    
+
     def moveSnake(self):
         body_copy = self.body[:-1]
         body_copy.insert(0, body_copy[0] + self.direction)
@@ -46,8 +46,8 @@ class Trap_Snake:
         self.size = len(self.body)
 
     def search(self, start, goals, obstacles, actions):
-        print("START " + str(start))
-        print("GOALS " + str(goals))
+        #print("START " + str(start))
+        #print("GOALS " + str(goals))
         open = []
         closed = []
         path = []
@@ -85,7 +85,7 @@ class Trap_Snake:
         children = []
         for a in actions:
             neighbour_pos = parent.state + a
-            if neighbour_pos not in obstacles:
+            if neighbour_pos not in obstacles and neighbour_pos.x >= 0 and neighbour_pos.x < DIMENSION and neighbour_pos.y >= 0 and neighbour_pos.y < DIMENSION:
                 newChild = Node(neighbour_pos, parent)
                 newChild.g = parent.g + 1
                 newChild.h = Vector2.distance_squared_to(parent.state, neighbour_pos)
@@ -102,13 +102,14 @@ class Trap_Snake:
         if goals == []:
             goals = fruits.apples + fruits.bananas + fruits.strawberries + dispensers.dispensers
         path = self.search(self.body[0], goals, obstacles, actions)
-        print("\n * * * \n")
-        print(path)
+        #print("\n * * * \n")
+        #print(path)
 
         if len(path) < 2: # can't find/end of path, pick any legal move
+            print("GOT TRAPPED trapsnake")
             for a in actions:
                 if self.body[0] + a not in obstacles:
                     self.direction = a
         else:
             self.direction = path[1] - path[0]
-            print("DIR: " + str(self.direction))
+            #print("DIR: " + str(self.direction))

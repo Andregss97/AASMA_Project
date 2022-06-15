@@ -124,6 +124,7 @@ class Dispenser_Snake:
         path = self.search(self.body[0], goals, obstacles, actions)
 
         if len(path) < 2: # can't find/end of path, pick any legal move
+            print("GOT TRAPPED dispenser_snake")
             for a in actions:
                 if self.body[0] + a not in obstacles:
                     self.direction = a

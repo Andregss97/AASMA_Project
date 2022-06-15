@@ -222,6 +222,7 @@ class Deliberative_Snake:
         path = self.search(self.body[0], goals, obstacles, actions, dispensers)
 
         if len(path) < 2: # can't find/end of path, pick any legal move
+            print("GOT TRAPPED delib_snake")
             for a in actions:
                 if self.body[0] + a not in obstacles:
                     self.direction = a
@@ -245,3 +246,4 @@ class Deliberative_Snake:
         elif goal in self.mushroomsScanned:
             return -1
         return -10
+

@@ -1,4 +1,4 @@
-import pygame as p
+pygame as p
 import sys
 from board import *
 from deliberative_snake import *
@@ -11,25 +11,16 @@ from traps import *
 
 MAX_FPS = 3
 
-apple_icon = p.image.load('snake_imgs/apple_icon.svg')
-banana_icon = p.image.load('snake_imgs/banana_icon.svg')
-strawberry_icon = p.image.load('snake_imgs/strawberry_icon.svg')
+def triggerIce(snakes, ix):
+    for i in range(4):
+        if i != ix:
+            snakes[i].freeze()
 
-mushroom_icon = p.image.load('snake_imgs/mushroom_icon.svg')
-ice_icon = p.image.load('snake_imgs/ice_icon.svg')
-
-dispenser_icon = p.image.load('snake_imgs/dispenser.svg')
-dispenser_icon = p.transform.scale(dispenser_icon, (20, 20))
-
-reactive_snake_icon = p.image.load('snake_imgs/reactive_snake.svg')
-deliberative_snake_icon = p.image.load('snake_imgs/deliberative_snake.svg')
-trap_snake_icon = p.image.load('snake_imgs/trap_snake.svg')
-dispenser_snake_icon = p.image.load('snake_imgs/dispenser_snake.svg')
-
-size_white = p.image.load('snake_imgs/size_w.svg')
-size_black = p.image.load('snake_imgs/size_b.svg')
-score_white = p.image.load('snake_imgs/score_w.svg')
-score_black = p.image.load('snake_imgs/score_b.svg')
+def triggerMushroom(snakes, ix):
+    snakes[ix].globalScore -= 1
+    for i in range(4):
+            if i != ix:
+                snakes[i].poison()
 
 '''
 Main function. Handles initializing application and updating graphics
@@ -46,7 +37,6 @@ def main():
     deliberative_snake_screen = False
     snakes = []
     running = 1
-    stepCount = 0
     score = False
 
     ## Generate all items
@@ -59,7 +49,7 @@ def main():
 
     ## Create Snake
     # deliberative_snake : olivedrab,
-    # reactive_snake : orange2,
+    # deliberative_snake : orange2,
     # trap_snake : lightslategrey,
     # dispenser_snake : indianred
     deliberative_snake = Deliberative_Snake()
@@ -69,12 +59,15 @@ def main():
     snakes.append(deliberative_snake)
     snakes.append(reactive_snake)
     snakes.append(dispenser_snake)
-    
+    snakes.append(trap_snake)
+
+
     screen.fill(screen_color)
 
     deliberative_snake.drawSnake(screen)
     reactive_snake.drawSnake(screen)
     dispenser_snake.drawSnake(screen)
+    trap_snake.drawSnake(screen)
 
     deliberative_snake.scanArea(screen, fruits, traps, dispensers)
 
@@ -88,6 +81,7 @@ def main():
     p.time.set_timer(SCREEN_UPDATE, 300)
 
     while running:
+        print("\n########\nDEBUG: MAIN CYCLE: ")
         reactive_snake.action(fruits, dispensers, traps, snakes)
         reactive_snake.moveSnake()
 
@@ -96,6 +90,9 @@ def main():
 
         dispenser_snake.action(fruits, dispensers, traps, snakes)
         dispenser_snake.moveSnake()
+
+        trap_snake.action(fruits, dispensers, traps, snakes)
+        trap_snake.moveSnake()
 
         for e in p.event.get():
             if e.type == p.QUIT:
@@ -133,15 +130,100 @@ def main():
                 print("Ice: ", dispenser_snake.ices)
                 print("Dispenser: ", dispenser_snake.dispenser)
                 print("----------------------------------------------------------")
+                print("--------------------- TRAP SNAKE --------------------")
+                print("Global Score: ", trap_snake.globalScore)
+                print("Snake Size: ", trap_snake.size)
+                print("Apples: ", trap_snake.apples, " x2 points")
+                print("Bananas: ", trap_snake.bananas, " x3 points")
+                print("Strawberries: ", trap_snake.strawberries, " x5 points")
+                print("Mushrooms: ", trap_snake.mushrooms, "x(-1) points")
+                print("Ice: ", trap_snake.ices)
+                print("Dispenser: ", trap_snake.dispenser)
+                print("----------------------------------------------------------")
                 p.quit()
                 sys.exit()
-                
+
             if e.type == p.KEYDOWN:
                 if e.key == p.K_d:
                     if deliberative_snake_screen :
                         deliberative_snake_screen = False
                     else:
                         deliberative_snake_screen = True
+
+
+        # TRAP SNAKE
+        if trap_snake.body[0] in fruits.apples:
+            # snake caught an apple
+            # print("APPLE!!!")
+            # delete APPLE from the board and fruits class
+            fruits.apples.remove(trap_snake.body[0])
+            board.busy_cells.remove(trap_snake.body[0])
+            # increase snake size
+            trap_snake.increaseSize()
+            # add points
+            trap_snake.apples += 1
+            trap_snake.globalScore += fruits.applePoints
+
+        if trap_snake.body[0] in fruits.bananas:
+            # snake caught a banana
+            # print("BANANA!!!")
+            # delete APPLE from the board and fruits class
+            fruits.bananas.remove(trap_snake.body[0])
+            board.busy_cells.remove(trap_snake.body[0])
+            # increase snake size
+            trap_snake.increaseSize()
+            # add points
+            trap_snake.bananas += 1
+            trap_snake.globalScore += fruits.bananaPoints
+
+        if trap_snake.body[0] in fruits.strawberries:
+            # snake caught a strawberry
+            # print("STRAWBERRY!!!")
+            # delete APPLE from the board and fruits class
+            fruits.strawberries.remove(trap_snake.body[0])
+            board.busy_cells.remove(trap_snake.body[0])
+            # increase snake size
+            trap_snake.increaseSize()
+            # add points
+            trap_snake.strawberries += 1
+            trap_snake.globalScore += fruits.strawberryPoints
+
+        if trap_snake.body[0] in traps.mushrooms:
+            # snake caught a mushroom
+            # print("MUSHROOM >__<")
+            # delete APPLE from the board and fruits class
+            traps.mushrooms.remove(trap_snake.body[0])
+            board.busy_cells.remove(trap_snake.body[0])
+            # add points
+            trap_snake.mushrooms += 1
+            #triggerMushroom(3, snakes)
+
+        if trap_snake.body[0] in traps.ices:
+            # snake caught an ice
+            # print("ICE *__*")
+            # delete APPLE from the board and fruits class
+            traps.ices.remove(trap_snake.body[0])
+            board.busy_cells.remove(trap_snake.body[0])
+            # add points
+            trap_snake.ices += 1
+            #triggerIce(3,snakes)
+
+        if trap_snake.body[0] in dispensers.dispensers and not trap_snake.activeDispenser:
+            # print("DISPENSER :P")
+            for dispenserPos in dispensers.dispensers:
+                if trap_snake.body[0] == dispenserPos and dispensers.STATE == 0:
+                    trap_snake.activeDispenser = True
+                    dispensers.num_snakes += 1
+                    trap_snake.dispenser += 1
+                    dispenserTimer = p.time.get_ticks()
+                if trap_snake.body[0] == dispenserPos and dispensers.STATE == 1:
+                    trap_snake.activeDispenser = True
+                    dispensers.num_snakes += 1
+                    trap_snake.dispenser += 1
+            if dispensers.STATE == 0 and trap_snake.activeDispenser:
+                dispensers.STATE = 1
+
+        ############################################################################
 
         # DELIBERATIVE SNAKE
         if deliberative_snake.body[0] in fruits.apples:
@@ -192,9 +274,8 @@ def main():
             board.busy_cells.remove(deliberative_snake.body[0])
             # add points
             deliberative_snake.mushrooms += 1
-            deliberative_snake.globalScore -= 1
-            # TODO: Implement the reduction of points from other snakes (-4)
-            
+            #triggerMushroom(0, snakes)
+
         if deliberative_snake.body[0] in traps.ices:
             # snake caught an ice
             # print("ICE *__*")
@@ -204,6 +285,7 @@ def main():
             board.busy_cells.remove(deliberative_snake.body[0])
             # add points
             deliberative_snake.ices += 1
+            #triggerIce(0,snakes)
 
         if deliberative_snake.body[0] in dispensers.dispensers and not deliberative_snake.activeDispenser:
             # print("DISPENSER :P")
@@ -216,9 +298,9 @@ def main():
                 if deliberative_snake.body[0] == dispenserPos and dispensers.STATE == 1:
                     deliberative_snake.activeDispenser = True
                     dispensers.num_snakes += 1
-                    deliberative_snake.dispenser += 1   
+                    deliberative_snake.dispenser += 1
             if dispensers.STATE == 0 and deliberative_snake.activeDispenser:
-                dispensers.STATE = 1  
+                dispensers.STATE = 1
 
         ############################################################################
 
@@ -235,7 +317,7 @@ def main():
             # add points
             reactive_snake.apples += 1
             reactive_snake.globalScore += fruits.applePoints
-        
+
         if reactive_snake.body[0] in fruits.bananas:
             # snake caught a banana
             # print("BANANA!!!")
@@ -247,7 +329,7 @@ def main():
             # add points
             reactive_snake.bananas += 1
             reactive_snake.globalScore += fruits.bananaPoints
-            
+
         if reactive_snake.body[0] in fruits.strawberries:
             # snake caught a strawberry
             # print("STRAWBERRY!!!")
@@ -259,7 +341,7 @@ def main():
             # add points
             reactive_snake.strawberries += 1
             reactive_snake.globalScore += fruits.strawberryPoints
-            
+
         if reactive_snake.body[0] in traps.mushrooms:
             # snake caught a mushroom
             # print("MUSHROOM >__<")
@@ -270,7 +352,7 @@ def main():
             reactive_snake.mushrooms += 1
             reactive_snake.globalScore -= 1
             # TODO: Implement the reduction of points from other snakes (-4)
-            
+
         if reactive_snake.body[0] in traps.ices:
             # snake caught an ice
             # print("ICE *__*")
@@ -291,9 +373,9 @@ def main():
                 if reactive_snake.body[0] == dispenserPos and dispensers.STATE == 1:
                     reactive_snake.activeDispenser = True
                     dispensers.num_snakes += 1
-                    reactive_snake.dispenser += 1   
+                    reactive_snake.dispenser += 1
             if dispensers.STATE == 0 and reactive_snake.activeDispenser:
-                dispensers.STATE = 1                 
+                dispensers.STATE = 1
 
         ############################################################################
 
@@ -310,7 +392,7 @@ def main():
             # add points
             dispenser_snake.apples += 1
             dispenser_snake.globalScore += fruits.applePoints
-        
+
         if dispenser_snake.body[0] in fruits.bananas:
             # snake caught a banana
             # print("BANANA!!!")
@@ -322,7 +404,7 @@ def main():
             # add points
             dispenser_snake.bananas += 1
             dispenser_snake.globalScore += fruits.bananaPoints
-            
+
         if dispenser_snake.body[0] in fruits.strawberries:
             # snake caught a strawberry
             # print("STRAWBERRY!!!")
@@ -334,7 +416,7 @@ def main():
             # add points
             dispenser_snake.strawberries += 1
             dispenser_snake.globalScore += fruits.strawberryPoints
-            
+
         if dispenser_snake.body[0] in traps.mushrooms:
             # snake caught a mushroom
             # print("MUSHROOM >__<")
@@ -345,7 +427,7 @@ def main():
             dispenser_snake.mushrooms += 1
             dispenser_snake.globalScore -= 1
             # TODO: Implement the reduction of points from other snakes (-4)
-            
+
         if dispenser_snake.body[0] in traps.ices:
             # snake caught an ice
             # print("ICE *__*")
@@ -354,7 +436,7 @@ def main():
             board.busy_cells.remove(dispenser_snake.body[0])
             # add points
             dispenser_snake.ices += 1
-            
+
         if dispenser_snake.body[0] in dispensers.dispensers and not dispenser_snake.activeDispenser:
             # print("DISPENSER :P")
             for dispenserPos in dispensers.dispensers:
@@ -368,10 +450,10 @@ def main():
                     dispensers.num_snakes += 1
                     dispenser_snake.dispenser += 1
             if dispensers.STATE == 0 and dispenser_snake.activeDispenser:
-                dispensers.STATE = 1    
-                    
+                dispensers.STATE = 1
+
         ##############################################################################
-        
+
         else:
             # Check dispenser timer and put in cooldown
             if dispensers.STATE == 1 and p.time.get_ticks() - dispenserTimer >= 5000:
@@ -397,9 +479,9 @@ def main():
                     deliberative_snake.globalScore += 1
                     reactive_snake.globalScore += 1
                     dispenser_snake.globalScore += 1
-       
+
                 dispenserCooldown = p.time.get_ticks()
-            
+
             if dispensers.STATE == 2 and p.time.get_ticks() - dispenserCooldown >= 5000:
                 dispensers.STATE = 0
                 deliberative_snake.activeDispenser = False
@@ -411,38 +493,50 @@ def main():
 
         if deliberative_snake.body[0] in deliberative_snake.body[1:] or deliberative_snake.body[0].x < 0 or deliberative_snake.body[0].x >= board.boardSize or deliberative_snake.body[0].y < 0 or deliberative_snake.body[0].y >= board.boardSize:
             # snake hit itself or went off the edges
-            print("\n DELIBERATIVE SNAKE LOST !\n")
-            p.display.set_caption('Snake Royale - DELIBERATIVE SNAKE LOST !')
+            print("\n DELIBERATIVE SNAKE LOST !\n", deliberative_snake.body[0])
+            print("Head: ", deliberative_snake.body[0])
+            print("Body: " + str(deliberative_snake.body[0:3]) + "...]")
             score = True
 
         if reactive_snake.body[0] in reactive_snake.body[1:] or reactive_snake.body[0].x < 0 or reactive_snake.body[0].x >= board.boardSize or reactive_snake.body[0].y < 0 or reactive_snake.body[0].y >= board.boardSize:
             # snake hit itself or went off the edges
-            print("\n REACTIVE SNAKE LOST !\n")
-            p.display.set_caption('Snake Royale - REACTIVE SNAKE LOST !')
+            print("\n REACTIVE SNAKE LOST !\n", reactive_snake.body[0])
+            print("Head: ", reactive_snake.body[0])
+            print("Body: " + str(reactive_snake.body[0:3]) + "...]")
             score = True
 
         if dispenser_snake.body[0] in dispenser_snake.body[1:] or dispenser_snake.body[0].x < 0 or dispenser_snake.body[0].x >= board.boardSize or dispenser_snake.body[0].y < 0 or dispenser_snake.body[0].y >= board.boardSize:
             # snake hit itself or went off the edges
-            print("\n DISPENSER SNAKE LOST !\n")
-            p.display.set_caption('Snake Royale - DISPENSER SNAKE LOST !')
+            print("\n DISPENSER SNAKE LOST !\n", dispenser_snake.body[0])
+            print("Head: ", dispenser_snake.body[0])
+            print("Body: " + str(dispenser_snake.body[0:3]) + "...]")
+            score = True
+
+        if trap_snake.body[0] in trap_snake.body[1:] or trap_snake.body[0].x < 0 or trap_snake.body[0].x >= board.boardSize or trap_snake.body[0].y < 0 or trap_snake.body[0].y >= board.boardSize:
+            # snake hit itself or went off the edges
+            print("\n TRAP SNAKE LOST !\n")
+            print("Head: ", trap_snake.body[0])
+            print("Body: " + str(trap_snake.body[0:3]) + "...]")
             score = True
 
         if deliberative_snake.size == 50 or deliberative_snake.globalScore >= 150:
             # snake achieved the maximum size or points and WON!
             print("\n DELIBERATIVE SNAKE WINS !\n")
-            p.display.set_caption('Snake Royale - DELIBERATIVE SNAKE WINS !')
             score = True
-        
+
         if reactive_snake.size == 50 or reactive_snake.globalScore >= 150:
             # snake achieved the maximum size or points and WON!
             print("\n REACTIVE SNAKE WINS !\n")
-            p.display.set_caption('Snake Royale - REACTIVE SNAKE WINS !')
             score = True
-        
+
         if dispenser_snake.size == 50 or dispenser_snake.globalScore == 150:
             # snake achieved the maximum size or points and WON!
             print("\n DISPENSER SNAKE WINS !\n")
-            p.display.set_caption('Snake Royale - DISPENSER SNAKE WINS !')
+            score = True
+
+        if trap_snake.size == 50 or trap_snake.globalScore == 150:
+            # snake achieved the maximum size or points and WON!
+            print("\n TRAP SNAKE WINS !\n")
             score = True
 
         if score:
@@ -479,8 +573,18 @@ def main():
             print("Ice: ", dispenser_snake.ices)
             print("Dispenser: ", dispenser_snake.dispenser)
             print("----------------------------------------------------------")
+            print("--------------------- TRAP SNAKE --------------------")
+            print("Global Score: ", trap_snake.globalScore)
+            print("Snake Size: ", trap_snake.size)
+            print("Apples: ", trap_snake.apples, " x2 points")
+            print("Bananas: ", trap_snake.bananas, " x3 points")
+            print("Strawberries: ", trap_snake.strawberries, " x5 points")
+            print("Mushrooms: ", trap_snake.mushrooms, "x(-1) points")
+            print("Ice: ", trap_snake.ices)
+            print("Dispenser: ", trap_snake.dispenser)
+            print("----------------------------------------------------------")
             running = 0
-            
+
         #######################################################################
 
         if deliberative_snake_screen:
@@ -494,13 +598,12 @@ def main():
             deliberative_snake.drawSnake(screen)
             reactive_snake.drawSnake(screen)
             dispenser_snake.drawSnake(screen)
-            drawScoreBoard(screen, deliberative_snake_screen, deliberative_snake, reactive_snake, trap_snake, dispenser_snake, stepCount)
-
-            stepCount += 1
+            trap_snake.drawSnake(screen)
 
             if deliberative_snake.exploreTO != [] and deliberative_snake.exploreTO[0] not in deliberative_snake.visibleArea and deliberative_snake.exploreTO[0] not in deliberative_snake.body:
                 p.draw.rect(screen, "red", p.Rect(deliberative_snake.exploreTO[0].x * SQUARE_SIZE, deliberative_snake.exploreTO[0].y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE), border_radius=1)
             board.drawLines(screen)
+            pass
         else:
             screen.fill(screen_color)
             deliberative_snake.scanArea(screen, fruits, traps, dispensers)
@@ -512,237 +615,11 @@ def main():
             deliberative_snake.drawSnake(screen)
             reactive_snake.drawSnake(screen)
             dispenser_snake.drawSnake(screen)
-
-            drawScoreBoard(screen, deliberative_snake_screen, deliberative_snake, reactive_snake, trap_snake, dispenser_snake, stepCount)
-
-            stepCount += 1
+            trap_snake.drawSnake(screen)
 
             board.drawLines(screen)
         p.display.update()
         clock.tick(MAX_FPS)
-    while 1:
-        for e in p.event.get():
-            if e.type == p.QUIT:
-                p.quit()
-                sys.exit()
-            if e.type == p.KEYDOWN:
-                if e.key == p.K_d:
-                    if deliberative_snake_screen :
-                        deliberative_snake_screen = False
-                    else:
-                        deliberative_snake_screen = True
-        if deliberative_snake_screen:
-            screen.fill(deliberative_screen_color)
-            deliberative_snake.scanArea(screen, fruits, traps, dispensers)
-            deliberative_snake.drawFruits(screen)
-            deliberative_snake.drawTraps(screen)
-            deliberative_snake.drawDispensers(screen, dispensers)
-            deliberative_snake.updateDispenserState(screen, dispensers)
-
-            deliberative_snake.drawSnake(screen)
-            reactive_snake.drawSnake(screen)
-            dispenser_snake.drawSnake(screen)
-            drawScoreBoard(screen, deliberative_snake_screen, deliberative_snake, reactive_snake, trap_snake, dispenser_snake, stepCount)
-
-            if deliberative_snake.exploreTO != [] and deliberative_snake.exploreTO[0] not in deliberative_snake.visibleArea and deliberative_snake.exploreTO[0] not in deliberative_snake.body:
-                p.draw.rect(screen, "red", p.Rect(deliberative_snake.exploreTO[0].x * SQUARE_SIZE, deliberative_snake.exploreTO[0].y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE), border_radius=1)
-            board.drawLines(screen)
-        else:
-            screen.fill(screen_color)
-            deliberative_snake.scanArea(screen, fruits, traps, dispensers)
-            fruits.drawFruits(screen)
-            traps.drawTraps(screen)
-            dispensers.drawDispensers(screen)
-            dispensers.updateDispenserState(screen)
-
-            deliberative_snake.drawSnake(screen)
-            reactive_snake.drawSnake(screen)
-            dispenser_snake.drawSnake(screen)
-            board.drawLines(screen)
-
-            drawScoreBoard(screen, deliberative_snake_screen, deliberative_snake, reactive_snake, trap_snake, dispenser_snake, stepCount)
-        p.display.update()
-
-def drawScoreBoard(screen, flag: bool, deliberative_snake: Deliberative_Snake, reactive_snake: Reactive_Snake, trap_snake: Trap_Snake, dispenser_snake: Dispenser_Snake, stepCount: int):
-    ## Score Board
-    text = p.font.SysFont("monospace", 16)    
-    subtitle = p.font.SysFont("monospace", 20, True)
-    title = p.font.SysFont("monospace", 32, True)
-    basic_color = (0,0,0)
-    if flag:
-        basic_color = (255,255,255)
-        deliberative_snake_visionTxt = subtitle.render("Deliberative Snake Vision  ON", 1, basic_color)
-        screen.blit(deliberative_snake_visionTxt, (32 * SQUARE_SIZE, 0.5 * SQUARE_SIZE))
-        stepsTxt = text.render("Steps {0}".format(stepCount), 1, basic_color)
-        screen.blit(stepsTxt, (41 * SQUARE_SIZE, 2 * SQUARE_SIZE))
-        
-        ## DELIBERATIVE SNAKE
-        screen.blit(score_white.convert_alpha(), (32.4 * SQUARE_SIZE, 8.8 * SQUARE_SIZE))
-        deliberative_global_score = subtitle.render("Score:{0}".format(deliberative_snake.globalScore), 1, 'olivedrab')
-        screen.blit(deliberative_global_score, (33.5 * SQUARE_SIZE, 9.1 * SQUARE_SIZE))
-        screen.blit(size_white.convert_alpha(), (37.4 * SQUARE_SIZE, 8.8 * SQUARE_SIZE))
-        deliberative_size = subtitle.render("Size:{0}".format(deliberative_snake.size), 1, 'olivedrab')
-        screen.blit(deliberative_size, (38.5 * SQUARE_SIZE, 9.1 * SQUARE_SIZE))
-
-        ## REACTIVE SNAKE
-        screen.blit(score_white.convert_alpha(), (32.4 * SQUARE_SIZE, 13.8 * SQUARE_SIZE))
-        reactive_global_score = subtitle.render("Score:{0}".format(reactive_snake.globalScore), 1, 'orange2')
-        screen.blit(reactive_global_score, (33.5 * SQUARE_SIZE, 14.1 * SQUARE_SIZE))
-        screen.blit(size_white.convert_alpha(), (37.4 * SQUARE_SIZE, 13.8 * SQUARE_SIZE))
-        reactive_size = subtitle.render("Size:{0}".format(reactive_snake.size), 1, 'orange2')
-        screen.blit(reactive_size, (38.5 * SQUARE_SIZE, 14.1 * SQUARE_SIZE))
-
-        ## DISPENSER SNAKE
-        screen.blit(score_white.convert_alpha(), (32.4 * SQUARE_SIZE, 18.8 * SQUARE_SIZE))
-        dispenser_global_score = subtitle.render("Score:{0}".format(dispenser_snake.globalScore), 1, 'indianred')
-        screen.blit(dispenser_global_score, (33.5 * SQUARE_SIZE, 19.1 * SQUARE_SIZE))
-        screen.blit(size_white.convert_alpha(), (37.4 * SQUARE_SIZE, 18.8 * SQUARE_SIZE))
-        dispenser_size = subtitle.render("Size:{0}".format(dispenser_snake.size), 1, 'indianred')
-        screen.blit(dispenser_size, (38.5 * SQUARE_SIZE, 19.1 * SQUARE_SIZE))
-
-        ## TRAP SNAKE
-        screen.blit(score_white.convert_alpha(), (32.4 * SQUARE_SIZE, 23.8 * SQUARE_SIZE))
-        trap_global_score = subtitle.render("Score:{0}".format(trap_snake.globalScore), 1, 'lightslategrey')
-        screen.blit(trap_global_score, (33.5 * SQUARE_SIZE, 24.1 * SQUARE_SIZE))
-        screen.blit(size_white.convert_alpha(), (37.4 * SQUARE_SIZE, 23.8 * SQUARE_SIZE))
-        trap_size = subtitle.render("Size:{0}".format(trap_snake.size), 1, 'lightslategrey')
-        screen.blit(trap_size, (38.5 * SQUARE_SIZE, 24.1 * SQUARE_SIZE))
-
-    else:
-        pressD = text.render("[ Press D ] deliberative snake vision", 1, basic_color)
-        screen.blit(pressD, (30.2 * SQUARE_SIZE, 0.5 * SQUARE_SIZE))
-        stepsTxt = text.render("Steps {0}".format(stepCount), 1, basic_color)
-        screen.blit(stepsTxt, (41 * SQUARE_SIZE, 2 * SQUARE_SIZE))
-        
-        ## DELIBERATIVE SNAKE
-        screen.blit(score_black.convert_alpha(), (32.4 * SQUARE_SIZE, 8.8 * SQUARE_SIZE))
-        deliberative_global_score = subtitle.render("Score:{0}".format(deliberative_snake.globalScore), 1, 'olivedrab')
-        screen.blit(deliberative_global_score, (33.5 * SQUARE_SIZE, 9.1 * SQUARE_SIZE))
-        screen.blit(size_black.convert_alpha(), (37.4 * SQUARE_SIZE, 8.8 * SQUARE_SIZE))
-        deliberative_size = subtitle.render("Size:{0}".format(deliberative_snake.size), 1, 'olivedrab')
-        screen.blit(deliberative_size, (38.5 * SQUARE_SIZE, 9.1 * SQUARE_SIZE))
-
-        ## REACTIVE SNAKE
-        screen.blit(score_black.convert_alpha(), (32.4 * SQUARE_SIZE, 13.8 * SQUARE_SIZE))
-        reactive_global_score = subtitle.render("Score:{0}".format(reactive_snake.globalScore), 1, 'orange2')
-        screen.blit(reactive_global_score, (33.5 * SQUARE_SIZE, 14.1 * SQUARE_SIZE))
-        screen.blit(size_black.convert_alpha(), (37.4 * SQUARE_SIZE, 13.8 * SQUARE_SIZE))
-        reactive_size = subtitle.render("Size:{0}".format(reactive_snake.size), 1, 'orange2')
-        screen.blit(reactive_size, (38.5 * SQUARE_SIZE, 14.1 * SQUARE_SIZE))
-
-        ## DISPENSER SNAKE
-        screen.blit(score_black.convert_alpha(), (32.4 * SQUARE_SIZE, 18.8 * SQUARE_SIZE))
-        dispenser_global_score = subtitle.render("Score:{0}".format(dispenser_snake.globalScore), 1, 'indianred')
-        screen.blit(dispenser_global_score, (33.5 * SQUARE_SIZE, 19.1 * SQUARE_SIZE))
-        screen.blit(size_black.convert_alpha(), (37.4 * SQUARE_SIZE, 18.8 * SQUARE_SIZE))
-        dispenser_size = subtitle.render("Size:{0}".format(dispenser_snake.size), 1, 'indianred')
-        screen.blit(dispenser_size, (38.5 * SQUARE_SIZE, 19.1 * SQUARE_SIZE))
-
-        ## TRAP SNAKE
-        screen.blit(score_black.convert_alpha(), (32.4 * SQUARE_SIZE, 23.8 * SQUARE_SIZE))
-        trap_global_score = subtitle.render("Score:{0}".format(trap_snake.globalScore), 1, 'lightslategrey')
-        screen.blit(trap_global_score, (33.5 * SQUARE_SIZE, 24.1 * SQUARE_SIZE))
-        screen.blit(size_black.convert_alpha(), (37.4 * SQUARE_SIZE, 23.8 * SQUARE_SIZE))
-        trap_size = subtitle.render("Size:{0}".format(trap_snake.size), 1, 'lightslategrey')
-        screen.blit(trap_size, (38.5 * SQUARE_SIZE, 24.1 * SQUARE_SIZE))
-
-    snakeRoyaleTxt = title.render("Snake Royale", 1, basic_color)
-    screen.blit(snakeRoyaleTxt, (34 * SQUARE_SIZE, 3 * SQUARE_SIZE))
-    scoreBoardTxt = subtitle.render("- Score Board -", 1, basic_color)
-    screen.blit(scoreBoardTxt, (35 * SQUARE_SIZE, 4.5 * SQUARE_SIZE))
-
-    ## DELIBERATIVE SNAKE
-    screen.blit(deliberative_snake_icon.convert_alpha(), (31 * SQUARE_SIZE, 6 * SQUARE_SIZE))
-    deliberativeTxt = subtitle.render("Deliberative Snake", 1, 'olivedrab')
-    screen.blit(deliberativeTxt, (32.5 * SQUARE_SIZE, 6.5 * SQUARE_SIZE))
-    screen.blit(apple_icon.convert_alpha(), (30.1 * SQUARE_SIZE, 7.5 * SQUARE_SIZE))
-    deliberative_apple_score = subtitle.render("{0}".format(deliberative_snake.apples), 1, 'olivedrab')
-    screen.blit(deliberative_apple_score, (31.2 * SQUARE_SIZE, 7.8 * SQUARE_SIZE))
-    screen.blit(banana_icon.convert_alpha(), (32.6 * SQUARE_SIZE, 7.5 * SQUARE_SIZE))
-    deliberative_banana_score = subtitle.render("{0}".format(deliberative_snake.bananas), 1, 'olivedrab')
-    screen.blit(deliberative_banana_score, (33.7 * SQUARE_SIZE, 7.8 * SQUARE_SIZE))
-    screen.blit(strawberry_icon.convert_alpha(), (35.1 * SQUARE_SIZE, 7.5 * SQUARE_SIZE))
-    deliberative_strawberry_score = subtitle.render("{0}".format(deliberative_snake.strawberries), 1, 'olivedrab')
-    screen.blit(deliberative_strawberry_score, (36.2 * SQUARE_SIZE, 7.8 * SQUARE_SIZE))
-    screen.blit(mushroom_icon.convert_alpha(), (37.6 * SQUARE_SIZE, 7.5 * SQUARE_SIZE))
-    deliberative_mushroom_score = subtitle.render("{0}".format(deliberative_snake.mushrooms), 1, 'olivedrab')
-    screen.blit(deliberative_mushroom_score, (38.7 * SQUARE_SIZE, 7.8 * SQUARE_SIZE))
-    screen.blit(ice_icon.convert_alpha(), (40.1 * SQUARE_SIZE, 7.5 * SQUARE_SIZE))
-    deliberative_ice_score = subtitle.render("{0}".format(deliberative_snake.ices), 1, 'olivedrab')
-    screen.blit(deliberative_ice_score, (41.2 * SQUARE_SIZE, 7.8 * SQUARE_SIZE))
-    screen.blit(dispenser_icon.convert_alpha(), (42.6 * SQUARE_SIZE, 7.8 * SQUARE_SIZE))
-    deliberative_dispenser_score = subtitle.render("{0}".format(deliberative_snake.dispenser), 1, 'olivedrab')
-    screen.blit(deliberative_dispenser_score, (43.5 * SQUARE_SIZE, 7.8 * SQUARE_SIZE))
-
-    ## REACTIVE SNAKE
-    screen.blit(reactive_snake_icon.convert_alpha(), (31 * SQUARE_SIZE, 11 * SQUARE_SIZE))
-    reactiveTxt = subtitle.render("Reactive Snake", 1, 'orange2')
-    screen.blit(reactiveTxt, (32.5 * SQUARE_SIZE, 11.5 * SQUARE_SIZE))
-    screen.blit(apple_icon.convert_alpha(), (30.1 * SQUARE_SIZE, 12.5 * SQUARE_SIZE))
-    reactive_apple_score = subtitle.render("{0}".format(reactive_snake.apples), 1, 'orange2')
-    screen.blit(reactive_apple_score, (31.2 * SQUARE_SIZE, 12.8 * SQUARE_SIZE))
-    screen.blit(banana_icon.convert_alpha(), (32.6 * SQUARE_SIZE, 12.5 * SQUARE_SIZE))
-    reactive_banana_score = subtitle.render("{0}".format(reactive_snake.bananas), 1, 'orange2')
-    screen.blit(reactive_banana_score, (33.7 * SQUARE_SIZE, 12.8 * SQUARE_SIZE))
-    screen.blit(strawberry_icon.convert_alpha(), (35.1 * SQUARE_SIZE, 12.5 * SQUARE_SIZE))
-    reactive_strawberry_score = subtitle.render("{0}".format(reactive_snake.strawberries), 1, 'orange2')
-    screen.blit(reactive_strawberry_score, (36.2 * SQUARE_SIZE, 12.8 * SQUARE_SIZE))
-    screen.blit(mushroom_icon.convert_alpha(), (37.6 * SQUARE_SIZE, 12.5 * SQUARE_SIZE))
-    reactive_mushroom_score = subtitle.render("{0}".format(reactive_snake.mushrooms), 1, 'orange2')
-    screen.blit(reactive_mushroom_score, (38.7 * SQUARE_SIZE, 12.8 * SQUARE_SIZE))
-    screen.blit(ice_icon.convert_alpha(), (40.1 * SQUARE_SIZE, 12.5 * SQUARE_SIZE))
-    reactive_ice_score = subtitle.render("{0}".format(reactive_snake.ices), 1, 'orange2')
-    screen.blit(reactive_ice_score, (41.2 * SQUARE_SIZE, 12.8 * SQUARE_SIZE))
-    screen.blit(dispenser_icon.convert_alpha(), (42.6 * SQUARE_SIZE, 12.8 * SQUARE_SIZE))
-    reactive_dispenser_score = subtitle.render("{0}".format(reactive_snake.dispenser), 1, 'orange2')
-    screen.blit(reactive_dispenser_score, (43.5 * SQUARE_SIZE, 12.8 * SQUARE_SIZE))
-
-    ## DISPENSER SNAKE
-    screen.blit(dispenser_snake_icon.convert_alpha(), (31 * SQUARE_SIZE, 16 * SQUARE_SIZE))
-    dispenserTxt = subtitle.render("Dispenser Snake", 1, 'indianred')
-    screen.blit(dispenserTxt, (32.5 * SQUARE_SIZE, 16.5 * SQUARE_SIZE))
-    screen.blit(apple_icon.convert_alpha(), (30.1 * SQUARE_SIZE, 17.5 * SQUARE_SIZE))
-    dispenser_apple_score = subtitle.render("{0}".format(dispenser_snake.apples), 1, 'indianred')
-    screen.blit(dispenser_apple_score, (31.2 * SQUARE_SIZE, 17.8 * SQUARE_SIZE))
-    screen.blit(banana_icon.convert_alpha(), (32.6 * SQUARE_SIZE, 17.5 * SQUARE_SIZE))
-    dispenser_banana_score = subtitle.render("{0}".format(dispenser_snake.bananas), 1, 'indianred')
-    screen.blit(dispenser_banana_score, (33.7 * SQUARE_SIZE, 17.8 * SQUARE_SIZE))
-    screen.blit(strawberry_icon.convert_alpha(), (35.1 * SQUARE_SIZE, 17.5 * SQUARE_SIZE))
-    dispenser_strawberry_score = subtitle.render("{0}".format(dispenser_snake.strawberries), 1, 'indianred')
-    screen.blit(dispenser_strawberry_score, (36.2 * SQUARE_SIZE, 17.8 * SQUARE_SIZE))
-    screen.blit(mushroom_icon.convert_alpha(), (37.6 * SQUARE_SIZE, 17.5 * SQUARE_SIZE))
-    dispenser_mushroom_score = subtitle.render("{0}".format(dispenser_snake.mushrooms), 1, 'indianred')
-    screen.blit(dispenser_mushroom_score, (38.7 * SQUARE_SIZE, 17.8 * SQUARE_SIZE))
-    screen.blit(ice_icon.convert_alpha(), (40.1 * SQUARE_SIZE, 17.5 * SQUARE_SIZE))
-    dispenser_ice_score = subtitle.render("{0}".format(dispenser_snake.ices), 1, 'indianred')
-    screen.blit(dispenser_ice_score, (41.2 * SQUARE_SIZE, 17.8 * SQUARE_SIZE))
-    screen.blit(dispenser_icon.convert_alpha(), (42.6 * SQUARE_SIZE, 17.8 * SQUARE_SIZE))
-    dispenser_dispenser_score = subtitle.render("{0}".format(dispenser_snake.dispenser), 1, 'indianred')
-    screen.blit(dispenser_dispenser_score, (43.5 * SQUARE_SIZE, 17.8 * SQUARE_SIZE))
-
-    ## TRAP SNAKE
-    screen.blit(trap_snake_icon.convert_alpha(), (31 * SQUARE_SIZE, 21 * SQUARE_SIZE))
-    trapTxt = subtitle.render("Trap Snake", 1, 'lightslategrey')
-    screen.blit(trapTxt, (32.5 * SQUARE_SIZE, 21.5 * SQUARE_SIZE))
-    screen.blit(apple_icon.convert_alpha(), (30.1 * SQUARE_SIZE, 22.5 * SQUARE_SIZE))
-    trap_apple_score = subtitle.render("{0}".format(trap_snake.apples), 1, 'lightslategrey')
-    screen.blit(trap_apple_score, (31.2 * SQUARE_SIZE, 22.8 * SQUARE_SIZE))
-    screen.blit(banana_icon.convert_alpha(), (32.6 * SQUARE_SIZE, 22.5 * SQUARE_SIZE))
-    trap_banana_score = subtitle.render("{0}".format(trap_snake.bananas), 1, 'lightslategrey')
-    screen.blit(trap_banana_score, (33.7 * SQUARE_SIZE, 22.8 * SQUARE_SIZE))
-    screen.blit(strawberry_icon.convert_alpha(), (35.1 * SQUARE_SIZE, 22.5 * SQUARE_SIZE))
-    trap_strawberry_score = subtitle.render("{0}".format(trap_snake.strawberries), 1, 'lightslategrey')
-    screen.blit(trap_strawberry_score, (36.2 * SQUARE_SIZE, 22.8 * SQUARE_SIZE))
-    screen.blit(mushroom_icon.convert_alpha(), (37.6 * SQUARE_SIZE, 22.5 * SQUARE_SIZE))
-    trap_mushroom_score = subtitle.render("{0}".format(trap_snake.mushrooms), 1, 'lightslategrey')
-    screen.blit(trap_mushroom_score, (38.7 * SQUARE_SIZE, 22.8 * SQUARE_SIZE))
-    screen.blit(ice_icon.convert_alpha(), (40.1 * SQUARE_SIZE, 22.5 * SQUARE_SIZE))
-    trap_ice_score = subtitle.render("{0}".format(trap_snake.ices), 1, 'lightslategrey')
-    screen.blit(trap_ice_score, (41.2 * SQUARE_SIZE, 22.8 * SQUARE_SIZE))
-    screen.blit(dispenser_icon.convert_alpha(), (42.6 * SQUARE_SIZE, 22.8 * SQUARE_SIZE))
-    trap_dispenser_score = subtitle.render("{0}".format(trap_snake.dispenser), 1, 'lightslategrey')
-    screen.blit(trap_dispenser_score, (43.5 * SQUARE_SIZE, 22.8 * SQUARE_SIZE))
-
 
 if __name__ == "__main__":
     main()
