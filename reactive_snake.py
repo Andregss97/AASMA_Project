@@ -33,6 +33,7 @@ class Reactive_Snake:
         self.poisoned = False
         self.poisonedTS = 0
         self.dead = False
+        self.winner = False
 
 
     def drawSnake (self, screen):
@@ -105,7 +106,8 @@ class Reactive_Snake:
         actions = [Vector2(0,1), Vector2(0,-1), Vector2(1,0), Vector2(-1,0)]
         obstacles = []
         for s in snakes:
-            obstacles.extend(s.body)
+            if s != None:
+                obstacles.extend(s.body)
         if self.body[0] in self.exploreTO:
             self.exploreTO = []
 
@@ -148,5 +150,10 @@ class Reactive_Snake:
         self.body = []
         self.color = "gray"
         self.dead = True
+
+    def won(self):
+        self.body = []
+        self.color = "orange2"
+        self.winner = True
         
         

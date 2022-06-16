@@ -31,6 +31,7 @@ class Trap_Snake:
         self.poisoned = False
         self.poisonedTS = 0
         self.dead = False
+        self.winner = False
 
     def drawSnake (self, screen):
         for cell in self.body:
@@ -99,9 +100,12 @@ class Trap_Snake:
     def action(self, fruits, dispensers, traps, snakes):
         actions = [Vector2(0,1), Vector2(0,-1), Vector2(1,0), Vector2(-1,0)]
         obstacles = []
+        goals = []
         for s in snakes:
-            obstacles.extend(s.body)
-        goals = traps.ices + traps.mushrooms
+            if s != None:
+                obstacles.extend(s.body)
+        if not self.anyFrozen(snakes):
+            goals = traps.ices + traps.mushrooms
         if goals == []:
             goals = fruits.apples + fruits.bananas + fruits.strawberries + dispensers.dispensers
         path = self.search(self.body[0], goals, obstacles, actions)
@@ -117,3 +121,15 @@ class Trap_Snake:
         self.body = []
         self.color = "gray"
         self.dead = True
+
+    def won(self):
+        self.body = []
+        self.color = "lightslategrey"
+        self.winner = True
+
+    def anyFrozen(self, snakes):
+        if not self.frozen:
+            for s in snakes:
+                if s != None and s.frozen and s != self:
+                    return True
+        return False

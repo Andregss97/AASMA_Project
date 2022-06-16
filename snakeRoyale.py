@@ -28,6 +28,8 @@ dispenser_snake_icon = p.image.load('snake_imgs/dispenser_snake.svg')
 
 dead_black_icon = p.image.load('snake_imgs/dead_b.svg')
 dead_white_icon = p.image.load('snake_imgs/dead_w.svg')
+winner_black_icon = p.image.load('snake_imgs/winner_b.svg')
+winner_white_icon = p.image.load('snake_imgs/winner_w.svg')
 
 size_white = p.image.load('snake_imgs/size_w.svg')
 size_black = p.image.load('snake_imgs/size_b.svg')
@@ -35,20 +37,29 @@ score_white = p.image.load('snake_imgs/score_w.svg')
 score_black = p.image.load('snake_imgs/score_b.svg')
 
 def triggerIce(snakes, ix):
-    for i in range(4):
-        if i != ix:
-            snakes[i].color = 'cadetblue3'
-            snakes[i].frozen = True
-            snakes[i].frozenTS = p.time.get_ticks()
+    if snakes[ix] != None:
+        for i in range(len(snakes)):
+            if i != ix and snakes[i] != None:
+                snakes[i].color = 'cadetblue3'
+                snakes[i].frozen = True
+                snakes[i].frozenTS = p.time.get_ticks()
 
 def triggerMushroom(snakes, ix):
-    snakes[ix].globalScore -= 1
-    for i in range(4):
-            if i != ix:
-                snakes[i].poisoned = True
-                snakes[i].poisonedTS = p.time.get_ticks()
-                snakes[i].color = 'blueviolet'
-                snakes[i].globalScore -= 4
+    if snakes[ix] != None:
+        snakes[ix].globalScore -= 1
+        for i in range(len(snakes)):
+                if i != ix and snakes[i] != None:
+                    snakes[i].poisoned = True
+                    snakes[i].poisonedTS = p.time.get_ticks()
+                    snakes[i].color = 'blueviolet'
+                    snakes[i].globalScore -= 4
+
+def countNones(snakes):
+    count = 0
+    for s in snakes:
+        if s == None:
+            count += 1
+    return count
 
 
 '''
@@ -67,6 +78,7 @@ def main():
     snakes = []
     running = 1
     stepCount = 0
+    winners = 0
     score = False
 
     ## Generate all items
@@ -75,6 +87,7 @@ def main():
     fruits.definePositions(board)
     traps = Traps()
     traps.definePositions(board)
+    trap_spawn = p.time.get_ticks()
     dispensers = Dispensers()
 
     ## Create Snake
@@ -110,16 +123,16 @@ def main():
     p.time.set_timer(SCREEN_UPDATE, 300)
 
     while running:
-        if (not reactive_snake.frozen or stepCount%4 == 0) and not reactive_snake.dead:
+        if (not reactive_snake.frozen or stepCount%4 == 0) and not reactive_snake.dead and not reactive_snake.winner:
             reactive_snake.action(fruits, dispensers, traps, snakes)
             reactive_snake.moveSnake()
-        if (not deliberative_snake.frozen or stepCount%4 == 0) and not deliberative_snake.dead:
+        if (not deliberative_snake.frozen or stepCount%4 == 0) and not deliberative_snake.dead and not deliberative_snake.winner:
             deliberative_snake.action(dispensers, snakes)
             deliberative_snake.moveSnake()
-        if (not dispenser_snake.frozen or stepCount%4 == 0) and not dispenser_snake.dead:
+        if (not dispenser_snake.frozen or stepCount%4 == 0) and not dispenser_snake.dead and not dispenser_snake.winner:
             dispenser_snake.action(fruits, dispensers, traps, snakes)
             dispenser_snake.moveSnake()
-        if (not trap_snake.frozen or stepCount%4 == 0) and not trap_snake.dead:
+        if (not trap_snake.frozen or stepCount%4 == 0) and not trap_snake.dead and not trap_snake.winner:
             trap_snake.action(fruits, dispensers, traps, snakes)
             trap_snake.moveSnake()
 
@@ -170,13 +183,14 @@ def main():
                         deliberative_snake_screen = True
 
         # DELIBERATIVE SNAKE
-        if not deliberative_snake.dead:
+        if not deliberative_snake.dead and not deliberative_snake.winner:
             if deliberative_snake.body[0] in fruits.apples:
                 # snake caught an apple
                 # print("APPLE!!!")
                 # delete APPLE from the board and fruits class
                 fruits.apples.remove(deliberative_snake.body[0])
-                deliberative_snake.applesScanned.remove(deliberative_snake.body[0])
+                if deliberative_snake.body[0] in deliberative_snake.applesScanned:
+                    deliberative_snake.applesScanned.remove(deliberative_snake.body[0])
                 board.busy_cells.remove(deliberative_snake.body[0])
                 # increase snake size
                 deliberative_snake.increaseSize()
@@ -187,9 +201,10 @@ def main():
             if deliberative_snake.body[0] in fruits.bananas:
                 # snake caught a banana
                 # print("BANANA!!!")
-                # delete APPLE from the board and fruits class
+                # delete BANANA from the board and fruits class
                 fruits.bananas.remove(deliberative_snake.body[0])
-                deliberative_snake.bananasScanned.remove(deliberative_snake.body[0])
+                if deliberative_snake.body[0] in deliberative_snake.bananasScanned:
+                    deliberative_snake.bananasScanned.remove(deliberative_snake.body[0])
                 board.busy_cells.remove(deliberative_snake.body[0])
                 # increase snake size
                 deliberative_snake.increaseSize()
@@ -200,9 +215,10 @@ def main():
             if deliberative_snake.body[0] in fruits.strawberries:
                 # snake caught a strawberry
                 # print("STRAWBERRY!!!")
-                # delete APPLE from the board and fruits class
+                # delete STRAWBERRY from the board and fruits class
                 fruits.strawberries.remove(deliberative_snake.body[0])
-                deliberative_snake.strawberriesScanned.remove(deliberative_snake.body[0])
+                if deliberative_snake.body[0] in deliberative_snake.strawberriesScanned:
+                    deliberative_snake.strawberriesScanned.remove(deliberative_snake.body[0])
                 board.busy_cells.remove(deliberative_snake.body[0])
                 # increase snake size
                 deliberative_snake.increaseSize()
@@ -213,9 +229,10 @@ def main():
             if deliberative_snake.body[0] in traps.mushrooms:
                 # snake caught a mushroom
                 # print("MUSHROOM >__<")
-                # delete APPLE from the board and fruits class
+                # delete MUSHROOM from the board and traps class
                 traps.mushrooms.remove(deliberative_snake.body[0])
-                deliberative_snake.mushroomsScanned.remove(deliberative_snake.body[0])
+                if deliberative_snake.body[0] in deliberative_snake.mushroomsScanned:
+                    deliberative_snake.mushroomsScanned.remove(deliberative_snake.body[0])
                 board.busy_cells.remove(deliberative_snake.body[0])
                 # add points
                 deliberative_snake.mushrooms += 1
@@ -225,9 +242,10 @@ def main():
             if deliberative_snake.body[0] in traps.ices:
                 # snake caught an ice
                 # print("ICE *__*")
-                # delete APPLE from the board and fruits class
+                # delete ICE from the board and traps class
                 traps.ices.remove(deliberative_snake.body[0])
-                deliberative_snake.icesScanned.remove(deliberative_snake.body[0])
+                if deliberative_snake.body[0] in deliberative_snake.icesScanned:
+                    deliberative_snake.icesScanned.remove(deliberative_snake.body[0])
                 board.busy_cells.remove(deliberative_snake.body[0])
                 # add points
                 deliberative_snake.ices += 1
@@ -252,7 +270,7 @@ def main():
         ############################################################################
 
         # REACTIVE SNAKE
-        if not reactive_snake.dead:
+        if not reactive_snake.dead and not reactive_snake.winner:
             if reactive_snake.body[0] in fruits.apples:
                 # snake caught an apple
                 # print("APPLE!!!")
@@ -329,7 +347,7 @@ def main():
         ############################################################################
 
         # DISPENSER SNAKE
-        if not dispenser_snake.dead:
+        if not dispenser_snake.dead and not dispenser_snake.winner:
             if dispenser_snake.body[0] in fruits.apples:
                 # snake caught an apple
                 # print("APPLE!!!")
@@ -406,7 +424,7 @@ def main():
         ##############################################################################
 
         # TRAP SNAKE
-        if not trap_snake.dead:
+        if not trap_snake.dead and not trap_snake.winner:
             if trap_snake.body[0] in fruits.apples:
                 # snake caught an apple
                 # print("APPLE!!!")
@@ -559,84 +577,77 @@ def main():
             if p.time.get_ticks() - trap_snake.frozenTS >= 5000:
                 trap_snake.frozen = False
                 trap_snake.color = 'lightslategrey'
+
+        if p.time.get_ticks() - trap_spawn >= 30000:
+            traps.definePositions(board)
+            trap_spawn = p.time.get_ticks()
             
         # SCORE BOARD
-        if not deliberative_snake.dead:
+        if not deliberative_snake.dead and not deliberative_snake.winner:
             if deliberative_snake.body[0] in deliberative_snake.body[1:] or deliberative_snake.body[0].x < 0 or deliberative_snake.body[0].x >= board.boardSize or deliberative_snake.body[0].y < 0 or deliberative_snake.body[0].y >= board.boardSize:
                 # snake hit itself or went off the edges
                 print("\n DELIBERATIVE SNAKE LOST !\n")
                 p.display.set_caption('Snake Royale - DELIBERATIVE SNAKE LOST !')
                 deliberative_snake.died()
-                snakes.remove(deliberative_snake)
+                snakes[0] = None
 
-        if not reactive_snake.dead:
+        if not reactive_snake.dead and not reactive_snake.winner:
             if reactive_snake.body[0] in reactive_snake.body[1:] or reactive_snake.body[0].x < 0 or reactive_snake.body[0].x >= board.boardSize or reactive_snake.body[0].y < 0 or reactive_snake.body[0].y >= board.boardSize:
                 # snake hit itself or went off the edges
                 print("\n REACTIVE SNAKE LOST !\n")
                 p.display.set_caption('Snake Royale - REACTIVE SNAKE LOST !')
                 reactive_snake.died()
-                snakes.remove(reactive_snake)
+                snakes[1] = None
 
-        if not dispenser_snake.dead:
+        if not dispenser_snake.dead and not dispenser_snake.winner:
             if dispenser_snake.body[0] in dispenser_snake.body[1:] or dispenser_snake.body[0].x < 0 or dispenser_snake.body[0].x >= board.boardSize or dispenser_snake.body[0].y < 0 or dispenser_snake.body[0].y >= board.boardSize:
                 # snake hit itself or went off the edges
                 print("\n DISPENSER SNAKE LOST !\n")
                 p.display.set_caption('Snake Royale - DISPENSER SNAKE LOST !')
                 dispenser_snake.died()
-                snakes.remove(dispenser_snake)
+                snakes[2] = None
         
-        if not trap_snake.dead:
+        if not trap_snake.dead and not trap_snake.winner:
             if trap_snake.body[0] in trap_snake.body[1:] or trap_snake.body[0].x < 0 or trap_snake.body[0].x >= board.boardSize or trap_snake.body[0].y < 0 or trap_snake.body[0].y >= board.boardSize:
                 # snake hit itself or went off the edges
                 print("\n TRAP SNAKE LOST !\n")
                 p.display.set_caption('Snake Royale - TRAP SNAKE LOST !')
                 trap_snake.died()
-                snakes.remove(trap_snake)
+                snakes[3] = None
         
-        if deliberative_snake.size == 90 or deliberative_snake.globalScore >= 200:
+        if deliberative_snake.size == 30 or deliberative_snake.globalScore >= 100:
             # snake achieved the maximum size or points and WON!
             print("\n DELIBERATIVE SNAKE WINS !\n")
             p.display.set_caption('Snake Royale - DELIBERATIVE SNAKE WINS !')
-            score = True
+            deliberative_snake.won()
+            winners += 1
+            snakes[0] = None
         
-        if reactive_snake.size == 90 or reactive_snake.globalScore >= 200:
+        if reactive_snake.size == 30 or reactive_snake.globalScore >= 100:
             # snake achieved the maximum size or points and WON!
             print("\n REACTIVE SNAKE WINS !\n")
             p.display.set_caption('Snake Royale - REACTIVE SNAKE WINS !')
-            score = True
+            reactive_snake.won()
+            winners += 1
+            snakes[1] = None
         
-        if dispenser_snake.size == 90 or dispenser_snake.globalScore == 200:
+        if dispenser_snake.size == 30 or dispenser_snake.globalScore == 100:
             # snake achieved the maximum size or points and WON!
             print("\n DISPENSER SNAKE WINS !\n")
             p.display.set_caption('Snake Royale - DISPENSER SNAKE WINS !')
-            score = True
+            dispenser_snake.won()
+            winners += 1
+            snakes[2] = None
             
-        if trap_snake.size == 90 or trap_snake.globalScore == 200:
+        if trap_snake.size == 30 or trap_snake.globalScore == 100:
             # snake achieved the maximum size or points and WON!
             print("\n TRAP SNAKE WINS !\n")
             p.display.set_caption('Snake Royale - TRAP SNAKE WINS !')
-            score = True
+            trap_snake.won()
+            winners += 1
+            snakes[3] = None
 
-        if len(snakes) == 1:
-            if deliberative_snake in snakes:
-                # snake achieved the maximum size or points and WON!
-                print("\n DELIBERATIVE SNAKE WINS !\n")
-                p.display.set_caption('Snake Royale - DELIBERATIVE SNAKE WINS !')
-                score = True
-            if reactive_snake in snakes:
-                # snake achieved the maximum size or points and WON!
-                print("\n REACTIVE SNAKE WINS !\n")
-                p.display.set_caption('Snake Royale - REACTIVE SNAKE WINS !')
-                score = True
-            if dispenser_snake in snakes:
-                # snake achieved the maximum size or points and WON!
-                print("\n DISPENSER SNAKE WINS !\n")
-                p.display.set_caption('Snake Royale - DISPENSER SNAKE WINS !')
-                score = True
-            if trap_snake in snakes:
-                # snake achieved the maximum size or points and WON!
-                print("\n TRAP SNAKE WINS !\n")
-                p.display.set_caption('Snake Royale - TRAP SNAKE WINS !')
+        if countNones(snakes) == 3:
                 score = True
         if score:
             print("----------------------------------------------------------")
@@ -686,7 +697,7 @@ def main():
             
         #######################################################################
 
-        if deliberative_snake_screen and not deliberative_snake.dead:
+        if deliberative_snake_screen and not deliberative_snake.dead and not deliberative_snake.winner:
             screen.fill(deliberative_screen_color)
             deliberative_snake.scanArea(screen, fruits, traps, dispensers)
             deliberative_snake.drawFruits(screen)
@@ -707,7 +718,7 @@ def main():
             board.drawLines(screen)
         else:
             screen.fill(screen_color)
-            if not deliberative_snake.dead:
+            if not deliberative_snake.dead and not deliberative_snake.winner:
                 deliberative_snake.scanArea(screen, fruits, traps, dispensers)
             fruits.drawFruits(screen)
             traps.drawTraps(screen)
@@ -737,7 +748,7 @@ def main():
                         deliberative_snake_screen = False
                     else:
                         deliberative_snake_screen = True
-        if deliberative_snake_screen and not deliberative_snake.dead:
+        if deliberative_snake_screen and not deliberative_snake.dead and not deliberative_snake.winner:
             screen.fill(deliberative_screen_color)
             deliberative_snake.scanArea(screen, fruits, traps, dispensers)
             deliberative_snake.drawFruits(screen)
@@ -756,7 +767,7 @@ def main():
             board.drawLines(screen)
         else:
             screen.fill(screen_color)
-            if not deliberative_snake.dead:
+            if not deliberative_snake.dead and not deliberative_snake.winner:
                 deliberative_snake.scanArea(screen, fruits, traps, dispensers)
             fruits.drawFruits(screen)
             traps.drawTraps(screen)
@@ -778,7 +789,7 @@ def drawScoreBoard(screen, flag: bool, deliberative_snake: Deliberative_Snake, r
     subtitle = p.font.SysFont("monospace", 20, True)
     title = p.font.SysFont("monospace", 32, True)
     basic_color = (0,0,0)
-    if flag and not deliberative_snake.dead:
+    if flag and not deliberative_snake.dead and not deliberative_snake.winner:
         basic_color = (255,255,255)
         deliberative_snake_visionTxt = subtitle.render("Deliberative Snake Vision  ON", 1, basic_color)
         screen.blit(deliberative_snake_visionTxt, (32 * SQUARE_SIZE, 0.5 * SQUARE_SIZE))
@@ -794,6 +805,8 @@ def drawScoreBoard(screen, flag: bool, deliberative_snake: Deliberative_Snake, r
         screen.blit(deliberative_size, (38.5 * SQUARE_SIZE, 9.1 * SQUARE_SIZE))
         if deliberative_snake.dead:
             screen.blit(dead_white_icon.convert_alpha(), (39.8 * SQUARE_SIZE, 6.2 * SQUARE_SIZE))
+        if deliberative_snake.winner:
+            screen.blit(winner_white_icon.convert_alpha(), (39.8 * SQUARE_SIZE, 6 * SQUARE_SIZE))
 
         ## REACTIVE SNAKE
         screen.blit(score_white.convert_alpha(), (32.4 * SQUARE_SIZE, 13.8 * SQUARE_SIZE))
@@ -804,6 +817,8 @@ def drawScoreBoard(screen, flag: bool, deliberative_snake: Deliberative_Snake, r
         screen.blit(reactive_size, (38.5 * SQUARE_SIZE, 14.1 * SQUARE_SIZE))
         if reactive_snake.dead:
             screen.blit(dead_white_icon.convert_alpha(), (38.2 * SQUARE_SIZE, 11.2 * SQUARE_SIZE))
+        if reactive_snake.winner:
+            screen.blit(winner_white_icon.convert_alpha(), (38.2 * SQUARE_SIZE, 11 * SQUARE_SIZE))
         
 
         ## DISPENSER SNAKE
@@ -815,6 +830,8 @@ def drawScoreBoard(screen, flag: bool, deliberative_snake: Deliberative_Snake, r
         screen.blit(dispenser_size, (38.5 * SQUARE_SIZE, 19.1 * SQUARE_SIZE))
         if dispenser_snake.dead:
             screen.blit(dead_white_icon.convert_alpha(), (38.6 * SQUARE_SIZE, 16.2 * SQUARE_SIZE))
+        if dispenser_snake.winner:
+            screen.blit(winner_white_icon.convert_alpha(), (38.6 * SQUARE_SIZE, 16 * SQUARE_SIZE))
 
         ## TRAP SNAKE
         screen.blit(score_white.convert_alpha(), (32.4 * SQUARE_SIZE, 23.8 * SQUARE_SIZE))
@@ -825,9 +842,11 @@ def drawScoreBoard(screen, flag: bool, deliberative_snake: Deliberative_Snake, r
         screen.blit(trap_size, (38.5 * SQUARE_SIZE, 24.1 * SQUARE_SIZE))
         if trap_snake.dead:
             screen.blit(dead_white_icon.convert_alpha(), (36.6 * SQUARE_SIZE, 21.2 * SQUARE_SIZE))
+        if trap_snake.winner:
+            screen.blit(winner_white_icon.convert_alpha(), (36.6 * SQUARE_SIZE, 21 * SQUARE_SIZE))
 
     else:
-        if not deliberative_snake.dead:
+        if not deliberative_snake.dead and not deliberative_snake.winner:
             pressD = text.render("[ Press D ] deliberative snake vision", 1, basic_color)
             screen.blit(pressD, (30.2 * SQUARE_SIZE, 0.5 * SQUARE_SIZE))
         stepsTxt = text.render("Steps {0}".format(stepCount), 1, basic_color)
@@ -842,6 +861,8 @@ def drawScoreBoard(screen, flag: bool, deliberative_snake: Deliberative_Snake, r
         screen.blit(deliberative_size, (38.5 * SQUARE_SIZE, 9.1 * SQUARE_SIZE))
         if deliberative_snake.dead:
             screen.blit(dead_black_icon.convert_alpha(), (39.8 * SQUARE_SIZE, 6.2 * SQUARE_SIZE))
+        if deliberative_snake.winner:
+            screen.blit(winner_black_icon.convert_alpha(), (39.8 * SQUARE_SIZE, 6 * SQUARE_SIZE))
 
         ## REACTIVE SNAKE
         screen.blit(score_black.convert_alpha(), (32.4 * SQUARE_SIZE, 13.8 * SQUARE_SIZE))
@@ -852,6 +873,8 @@ def drawScoreBoard(screen, flag: bool, deliberative_snake: Deliberative_Snake, r
         screen.blit(reactive_size, (38.5 * SQUARE_SIZE, 14.1 * SQUARE_SIZE))
         if reactive_snake.dead:
             screen.blit(dead_black_icon.convert_alpha(), (38.2 * SQUARE_SIZE, 11.2 * SQUARE_SIZE))
+        if reactive_snake.winner:
+            screen.blit(winner_black_icon.convert_alpha(), (38.2 * SQUARE_SIZE, 11 * SQUARE_SIZE))
 
         ## DISPENSER SNAKE
         screen.blit(score_black.convert_alpha(), (32.4 * SQUARE_SIZE, 18.8 * SQUARE_SIZE))
@@ -862,6 +885,8 @@ def drawScoreBoard(screen, flag: bool, deliberative_snake: Deliberative_Snake, r
         screen.blit(dispenser_size, (38.5 * SQUARE_SIZE, 19.1 * SQUARE_SIZE))
         if dispenser_snake.dead:
             screen.blit(dead_black_icon.convert_alpha(), (38.6 * SQUARE_SIZE, 16.2 * SQUARE_SIZE))
+        if dispenser_snake.winner:
+            screen.blit(winner_black_icon.convert_alpha(), (38.6 * SQUARE_SIZE, 16 * SQUARE_SIZE))
 
         ## TRAP SNAKE
         screen.blit(score_black.convert_alpha(), (32.4 * SQUARE_SIZE, 23.8 * SQUARE_SIZE))
@@ -872,6 +897,8 @@ def drawScoreBoard(screen, flag: bool, deliberative_snake: Deliberative_Snake, r
         screen.blit(trap_size, (38.5 * SQUARE_SIZE, 24.1 * SQUARE_SIZE))
         if trap_snake.dead:
             screen.blit(dead_black_icon.convert_alpha(), (36.6 * SQUARE_SIZE, 21.2 * SQUARE_SIZE))
+        if trap_snake.winner:
+            screen.blit(winner_black_icon.convert_alpha(), (36.6 * SQUARE_SIZE, 21 * SQUARE_SIZE))
 
     snakeRoyaleTxt = title.render("Snake Royale", 1, basic_color)
     screen.blit(snakeRoyaleTxt, (34 * SQUARE_SIZE, 3 * SQUARE_SIZE))
