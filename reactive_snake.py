@@ -28,6 +28,12 @@ class Reactive_Snake:
         self.dispenser = 0
         self.activeDispenser = False
 
+        self.frozen = False
+        self.frozenTS = 0
+        self.poisoned = False
+        self.poisonedTS = 0
+        self.dead = False
+
 
     def drawSnake (self, screen):
         for cell in self.body:
@@ -137,5 +143,10 @@ class Reactive_Snake:
                     self.direction = a
         else:
             self.direction = path[1] - path[0]
+
+    def died(self):
+        self.body = []
+        self.color = "gray"
+        self.dead = True
         
         

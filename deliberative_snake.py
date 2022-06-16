@@ -1,3 +1,4 @@
+from hashlib import algorithms_available
 import pygame as p
 import numpy as np
 from pygame import Vector2
@@ -50,6 +51,12 @@ class Deliberative_Snake:
         self.activeDispenser = False
         # shared_dispenser = 0
         # TODO: Criar várias cobras e identificar estes eventos
+
+        self.frozen = False
+        self.frozenTS = 0
+        self.poisoned = False
+        self.poisonedTS = 0
+        self.dead = False
 
     def drawSnake (self, screen):
         for cell in self.body:
@@ -245,3 +252,8 @@ class Deliberative_Snake:
         elif goal in self.mushroomsScanned:
             return -1
         return -10
+
+    def died(self):
+        self.body = []
+        self.color = "gray"
+        self.dead = True

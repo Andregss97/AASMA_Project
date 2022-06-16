@@ -4,8 +4,8 @@ from board import *
 mushroom = p.image.load('snake_imgs/mushroom.svg')
 ice = p.image.load('snake_imgs/ice.svg')
 
-NMBR_START_MUSHROOMS = 4
-NMBR_START_ICES = 8
+NMBR_START_MUSHROOMS = 12   
+NMBR_START_ICES = 4
 
 class Traps:
 
