@@ -107,7 +107,11 @@ class Trap_Snake:
         if not self.anyFrozen(snakes):
             goals = traps.ices + traps.mushrooms
         if goals == []:
-            goals = fruits.apples + fruits.bananas + fruits.strawberries + dispensers.dispensers
+            if not self.activeDispenser and dispensers.STATE != 2:
+                goals = fruits.apples + fruits.bananas + fruits.strawberries + dispensers.dispensers
+            else:
+                goals = fruits.apples + fruits.bananas + fruits.strawberries
+
         path = self.search(self.body[0], goals, obstacles, actions)
 
         if len(path) < 2: # can't find/end of path, pick any legal move
