@@ -152,7 +152,6 @@ class Reactive_Snake:
         self.dead = True
 
     def won(self):
-        self.body = []
         self.color = "orange2"
         self.winner = True
         

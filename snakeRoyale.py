@@ -615,37 +615,37 @@ def main():
                 trap_snake.died()
                 snakes[3] = None
         
-        if deliberative_snake.size == 30 or deliberative_snake.globalScore >= 100:
+        if deliberative_snake.size == 50 or deliberative_snake.globalScore >= 100:
             # snake achieved the maximum size or points and WON!
             print("\n DELIBERATIVE SNAKE WINS !\n")
             p.display.set_caption('Snake Royale - DELIBERATIVE SNAKE WINS !')
             deliberative_snake.won()
             winners += 1
-            snakes[0] = None
+            score = True
         
-        if reactive_snake.size == 30 or reactive_snake.globalScore >= 100:
+        if reactive_snake.size == 50 or reactive_snake.globalScore >= 100:
             # snake achieved the maximum size or points and WON!
             print("\n REACTIVE SNAKE WINS !\n")
             p.display.set_caption('Snake Royale - REACTIVE SNAKE WINS !')
             reactive_snake.won()
             winners += 1
-            snakes[1] = None
+            score = True
         
-        if dispenser_snake.size == 30 or dispenser_snake.globalScore == 100:
+        if dispenser_snake.size == 50 or dispenser_snake.globalScore == 100:
             # snake achieved the maximum size or points and WON!
             print("\n DISPENSER SNAKE WINS !\n")
             p.display.set_caption('Snake Royale - DISPENSER SNAKE WINS !')
             dispenser_snake.won()
             winners += 1
-            snakes[2] = None
+            score = True
             
-        if trap_snake.size == 30 or trap_snake.globalScore == 100:
+        if trap_snake.size == 50 or trap_snake.globalScore == 100:
             # snake achieved the maximum size or points and WON!
             print("\n TRAP SNAKE WINS !\n")
             p.display.set_caption('Snake Royale - TRAP SNAKE WINS !')
             trap_snake.won()
             winners += 1
-            snakes[3] = None
+            score = True
 
         if countNones(snakes) == 3:
                 score = True

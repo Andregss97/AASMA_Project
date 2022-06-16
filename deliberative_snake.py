@@ -261,6 +261,5 @@ class Deliberative_Snake:
         self.dead = True
 
     def won(self):
-        self.body = []
         self.color = "olivedrab"
         self.winner = True

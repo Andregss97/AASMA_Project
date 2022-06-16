@@ -144,6 +144,5 @@ class Dispenser_Snake:
         self.dead = True
 
     def won(self):
-        self.body = []
         self.color = "indianred"
         self.winner = True

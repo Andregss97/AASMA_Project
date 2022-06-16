@@ -123,7 +123,6 @@ class Trap_Snake:
         self.dead = True
 
     def won(self):
-        self.body = []
         self.color = "lightslategrey"
         self.winner = True
 
