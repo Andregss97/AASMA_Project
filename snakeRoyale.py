@@ -631,7 +631,7 @@ def main():
             winners += 1
             score = True
         
-        if dispenser_snake.size == 50 or dispenser_snake.globalScore == 100:
+        if dispenser_snake.size == 50 or dispenser_snake.globalScore >= 100:
             # snake achieved the maximum size or points and WON!
             print("\n DISPENSER SNAKE WINS !\n")
             p.display.set_caption('Snake Royale - DISPENSER SNAKE WINS !')
@@ -639,7 +639,7 @@ def main():
             winners += 1
             score = True
             
-        if trap_snake.size == 50 or trap_snake.globalScore == 100:
+        if trap_snake.size == 50 or trap_snake.globalScore >= 100:
             # snake achieved the maximum size or points and WON!
             print("\n TRAP SNAKE WINS !\n")
             p.display.set_caption('Snake Royale - TRAP SNAKE WINS !')
