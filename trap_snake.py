@@ -94,6 +94,7 @@ class Trap_Snake:
                 newChild = Node(neighbour_pos, parent)
                 newChild.g = parent.g + 1
                 newChild.h = Vector2.distance_squared_to(parent.state, neighbour_pos)
+                newChild.f = newChild.g + newChild.h
                 children.append(newChild)
         return children
 

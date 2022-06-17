@@ -195,6 +195,7 @@ class Deliberative_Snake:
                 newChild = Node(neighbour_pos, parent)
                 newChild.g = parent.g + 1
                 newChild.h = self.manhattanDistance(self.body[0], parent.state) + self.findReward(parent.state, dispensers)
+                newChild.f = newChild.g + newChild.h
                 children.append(newChild)
         return children
 
@@ -243,7 +244,7 @@ class Deliberative_Snake:
         elif goal in self.bananasScanned:
             return 3
         elif goal in self.strawberriesScanned:
-            return 5
+            return 200
         elif goal in self.dispensersScanned and not self.activeDispenser and dispensers.STATE != 2:
             if dispensers.STATE == 0:
                 return 8
