@@ -40,4 +40,4 @@ s4 : procura apenas comida;
 
 Se a comida acabar no tabuleiro, todas as cobras devem priorizar o "food dispenser". O jogo acaba quando uma das cobras atinge os 30 px.
 
-As métricas seriam pontos acumulados, tamanho da cobra, fruta comida, ...
+Para correr o programa, apenas é necessario clickar no executável "SnakeRoyal.exe" que se encontra presenta na mesma diretoria que este ficheiro readme.
